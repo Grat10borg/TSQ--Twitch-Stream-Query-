@@ -1,12 +1,12 @@
 "use strict";
 let TwitchAppSecret = "";
 let Tclient_id = "tfh418mo6nmf2skaowwzubi8ca5z2t";
-let TappAcess = "zp5o7iwyia1r0mnhbdr6lhmqbg2dox";
+let LoginappAcess = "zp5o7iwyia1r0mnhbdr6lhmqbg2dox";
 validateToken();
 function validateToken() {
     fetch("https://id.twitch.tv/oauth2/validate", {
         headers: {
-            Authorization: "Bearer " + TappAcess,
+            Authorization: "Bearer " + LoginappAcess,
         },
     })
         .then((resp) => resp.json())

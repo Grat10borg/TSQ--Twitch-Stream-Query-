@@ -3,10 +3,13 @@
 // IMPORTENT Treat client secrets as you would your password. you must keep it confidential and neer expose it to users, even in an obscured form.
 // WARNING do not share client IDs among applications; each application must have its own client ID. sharing client IDs among applications may result in the suspension of your application's acces to the twitch API
 let TwitchAppSecret = "";
+
+// ! ! ! Make TSQ make its own app acess token and such later on ! ! !
+
 // Client Id made the same place the App secret is
 let Tclient_id = "tfh418mo6nmf2skaowwzubi8ca5z2t";
-
-let TappAcess = "zp5o7iwyia1r0mnhbdr6lhmqbg2dox";
+// App Acess you need to log in to make 
+let LoginappAcess = "zp5o7iwyia1r0mnhbdr6lhmqbg2dox";
 validateToken();
 //#region ValidateToken, Validates the TappAcess Token and then calls fetchUser()
 
@@ -16,7 +19,7 @@ validateToken();
 function validateToken() {
   fetch("https://id.twitch.tv/oauth2/validate", {
     headers: {
-      Authorization: "Bearer " + TappAcess,
+      Authorization: "Bearer " + LoginappAcess,
     },
   })
     .then((resp) => resp.json())
