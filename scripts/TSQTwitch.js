@@ -1,7 +1,6 @@
 "use strict";
-let TwitchAppSecret = "";
-let Tclient_id = "tfh418mo6nmf2skaowwzubi8ca5z2t";
-let LoginappAcess = "zp5o7iwyia1r0mnhbdr6lhmqbg2dox";
+let Tclient_id = "";
+let LoginappAcess = "t6jkktho3qmuu2g2blzzljfgng03k3";
 validateToken();
 function validateToken() {
     fetch("https://id.twitch.tv/oauth2/validate", {
@@ -17,6 +16,7 @@ function validateToken() {
                 console.log("This token is invalid ... " + resp.message);
                 return;
             }
+            console.log(resp);
             console.log("Unexpected output with a status");
             return;
         }

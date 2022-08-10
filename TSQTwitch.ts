@@ -1,17 +1,32 @@
+//!! App tokens can expire !!
+//#region Twitch App Secret Explanation
 // Follow these steps to make an APP id if missing or broken https://dev.twitch.tv/docs/authentication/register-app#registering-your-app
 // Warnings from Twitch
 // IMPORTENT Treat client secrets as you would your password. you must keep it confidential and neer expose it to users, even in an obscured form.
 // WARNING do not share client IDs among applications; each application must have its own client ID. sharing client IDs among applications may result in the suspension of your application's acces to the twitch API
-let TwitchAppSecret = "";
-
-// ! ! ! Make TSQ make its own app acess token and such later on ! ! !
-
+// we dont need a secret here, but its worth an explanation as its needed in the Twitch Cli
+//let TwitchAppSecret = "";
+//#endregion
+//#region Twitch Client Id Explanation
 // Client Id made the same place the App secret is
-let Tclient_id = "tfh418mo6nmf2skaowwzubi8ca5z2t";
+// Client Ids are Keys are needed to send along to the twitch api on some Api calls. it can also be made through the Twitch Dev Console.
+// https://dev.twitch.tv/docs/authentication/register-app#registering-your-app
+// You can also get your Client Id through a Api call shown in: validateToken(){}
+// That will return a working Client Id
+//#endregion
+//#region App Access Token Explanation 
 // App Acess you need to log in to make 
-let LoginappAcess = "zp5o7iwyia1r0mnhbdr6lhmqbg2dox";
+// you need to make a Loginappacess key through the Twitch CLI 
+//part 1 : https://dev.twitch.tv/docs/cli#twitch-cli, 
+//part 2: https://dev.twitch.tv/docs/cli/configure-command, 
+//part 3: https://dev.twitch.tv/docs/cli/token-command
+// App Acess keys lets programs do things an anonomus user would be able to aka someone not logged in, so it can search streams and clips but cannot get you your Stream key or Personal Infomation.
+//#endregion
+let Tclient_id = "" as string; // Set in ValidateToken()
+let LoginappAcess = "t6jkktho3qmuu2g2blzzljfgng03k3" as string; // !! Each App Acess Token lasts 60 Days before needing to be remade !!
+
 validateToken();
-//#region ValidateToken, Validates the TappAcess Token and then calls fetchUser()
+
 
 
 
@@ -28,12 +43,10 @@ function validateToken() {
       if (resp.status) {
         if (resp.status == 401) {
           console.log("This token is invalid ... " + resp.message);
-          // document.getElementById('output').textContent = 'This token is invalid: ' + resp.message;
           return;
         }
-        //console.log(resp);
+        console.log(resp);
         console.log("Unexpected output with a status");
-        //document.getElementById('output').textContent = 'Unexpected output with a status?';
         return;
       }
       if (resp.client_id) {
