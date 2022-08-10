@@ -1,0 +1,40 @@
+body {
+    background-color: aliceblue;
+
+    header {
+        min-height: 4rem;
+        background-color: cornflowerblue;
+        color: whitesmoke;
+    }
+    h1,h2,h3,h4,h5,h6 {
+      
+        font-family: 'Secular One', sans-serif;
+    }
+    p,a,label,span {
+        font-family: 'Heebo', sans-serif;
+    }
+    form {
+        label {
+            color: darkblue;
+            font-size: large;
+        }
+        
+        .submit {
+            background-color: cornflowerblue;
+            color: aliceblue;
+        }
+    }
+    a{
+        color: aquamarine;
+        cursor: pointer;
+    }
+    a:visited {
+        color: cadetblue;
+        cursor: default;
+    }
+    footer {
+        min-height: 4rem;
+        background-color: cornflowerblue;
+        color: whitesmoke;
+    }
+}

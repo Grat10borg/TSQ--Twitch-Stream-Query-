@@ -1,1 +1,44 @@
-/* No CSS *//*# sourceMappingURL=style.css.map */
+body {
+  background-color: aliceblue;
+}
+
+body header {
+  min-height: 4rem;
+  background-color: cornflowerblue;
+  color: whitesmoke;
+}
+
+body h1, body h2, body h3, body h4, body h5, body h6 {
+  font-family: 'Secular One', sans-serif;
+}
+
+body p, body a, body label, body span {
+  font-family: 'Heebo', sans-serif;
+}
+
+body form label {
+  color: darkblue;
+  font-size: large;
+}
+
+body form .submit {
+  background-color: cornflowerblue;
+  color: aliceblue;
+}
+
+body a {
+  color: aquamarine;
+  cursor: pointer;
+}
+
+body a:visited {
+  color: cadetblue;
+  cursor: default;
+}
+
+body footer {
+  min-height: 4rem;
+  background-color: cornflowerblue;
+  color: whitesmoke;
+}
+/*# sourceMappingURL=style.css.map */
