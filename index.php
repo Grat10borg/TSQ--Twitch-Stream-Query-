@@ -18,15 +18,15 @@
         <h2 class="p-4 d-flex justify-content-center">TSQ: Twitch Stream Querier</h2>
     </header>
     <main class="pb-4 pt-4">
-        <form class="container col-rows-2 col-6" id="TwitchForm" method="POST">
+        <form class="container col-rows-2 col-rows-1-sm col-6 " id="TwitchForm" method="POST">
             <!-- Make auto fill at some point : https://w3collective.com/autocomplete-search-javascript/ -->
             <div class="row mt-2">
-                <label for="TwitchHandle">Streamer Name</label>
-                <input class="form-control my-2" type="text" name="TwitchHandle">
+                <label class="text-center col-2 mt-2" for="Game">Catagory:</label>
+                <input class="col form-control my-2" id="GameNameInput" type="text" name="GameName">
             </div>
             <div class="row mt-2">
-                <label for="Game">Game Name</label>
-                <input class="form-control my-2" type="text" name="GameName">
+                <label class="text-center col-2 mt-2" for="TwitchHandle">Streamer:</label>
+                <input class="col form-control my-2" id="StreamerName" type="text" name="TwitchHandle">
             </div>
             <input class="btn submit row mt-3" type="submit" value="submit">
         </form>

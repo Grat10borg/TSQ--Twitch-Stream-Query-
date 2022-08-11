@@ -22,7 +22,8 @@
 // App Access keys lets programs do things an anonomus user would be able to aka someone not logged in, so it can search streams and clips but cannot get you your Stream key or Personal Infomation.
 //#endregion
 
-let Tclient_id = "" as string; // Set in ValidateToken()
+let Tclient_id = "tfh418mo6nmf2skaowwzubi8ca5z2t" as string; // Set in ValidateToken()
+let AClient_id = "";
 let LoginappAccess = "t6jkktho3qmuu2g2blzzljfgng03k3" as string; // !! Each App Acess Token lasts 60 Days before needing to be remade !!
 
 if (validateToken() == 1) {
@@ -41,12 +42,29 @@ TwitchForm.addEventListener("submit", function (event: any): void {
 });
 
 // https://dev.twitch.tv/docs/api/reference#get-users // Gets User Id from Username
-let StreamerName = document.getElementById("") as HTMLInputElement;
+let StreamerName = document.getElementById("StreamerName") as HTMLInputElement;
 StreamerName.addEventListener("change", function (event: any): void {});
 
 // Api Ref: https://dev.twitch.tv/docs/api/reference#get-games
-let GameName = document.getElementById("") as HTMLInputElement;
-GameName.addEventListener("change", function (event: any): void {});
+// Api Ref: https://dev.twitch.tv/docs/api/reference#search-categories // this one is in Use 
+let GameName = document.getElementById("GameNameInput") as HTMLInputElement;
+GameName.addEventListener("keyup", async function (event: any) {
+  if(event.target.value.length > 3) {
+    // Gets closest to written input like searching on twitch
+    // if not 0
+    let resp = await HttpCaller("https://api.twitch.tv/helix/search/categories?"+"query=" + event.target.value);
+    if(resp != 0) {
+
+      console.log(resp);
+    } // if 0
+    else {
+      // Make Error Screen
+    }
+    console.log("https://api.twitch.tv/helix/search/categories?"+"query=" + event.target.value);
+    console.log(event.target.value);
+  }
+  
+});
 
 // Functions
 
@@ -69,7 +87,7 @@ function validateToken(): number {
         return 0;
       }
       if (resp.client_id) {
-        Tclient_id = resp.client_id;
+        AClient_id = resp.client_id;
         //console.log(Tclient_id);
         return 1;
       }
@@ -78,11 +96,34 @@ function validateToken(): number {
     })
     .catch((err) => {
       console.log(err);
-      console.log("An Error Occured loading token data");
       return 0;
     });
   return 1;
 }
 //#endregion
 
-function GetSteamers() {}
+//#region HttpCaller(HttpCall) multipurpose HttpCaller calls the Httpcall returns The Response if Success if not: 0
+// This makes most calls, intead of a lot of differnt functions this does them instead. 
+// TO find out what is called look where its called as the HTTPCALL would need to be sent over. 
+async function HttpCaller(HttpCall: string) {
+  // API CALL
+  fetch(`${HttpCall}`, {
+    headers: {
+      Authorization: "Bearer " + LoginappAccess, 
+      "Client-ID": AClient_id, // can also use Tclient_id. !! comment out Tclient if not being used !!
+    },
+  })
+    .then((response) => response.json())
+    .then((response) => {
+      // Return Response on Success
+      console.log(response);
+      return response;
+    })
+    .catch((err) => {
+      // Print Error if any. And return 0
+      console.log(err);
+      return 0;
+    });
+    return 0;
+}
+//#endregion
