@@ -27,13 +27,17 @@ let GameName = document.getElementById("GameNameInput");
 GameName.addEventListener("keyup", function (event) {
     return __awaiter(this, void 0, void 0, function* () {
         if (event.target.value.length > 3) {
-            let resp = yield HttpCaller("https://api.twitch.tv/helix/search/categories?" + "query=" + event.target.value);
+            let resp = yield HttpCaller("https://api.twitch.tv/helix/search/categories?" +
+                "query=" +
+                event.target.value);
             if (resp != 0) {
                 console.log(resp);
             }
             else {
             }
-            console.log("https://api.twitch.tv/helix/search/categories?" + "query=" + event.target.value);
+            console.log("https://api.twitch.tv/helix/search/categories?" +
+                "query=" +
+                event.target.value);
             console.log(event.target.value);
         }
     });
@@ -69,7 +73,7 @@ function validateToken() {
 }
 function HttpCaller(HttpCall) {
     return __awaiter(this, void 0, void 0, function* () {
-        fetch(`${HttpCall}`, {
+        const response = yield fetch(`${HttpCall}`, {
             headers: {
                 Authorization: "Bearer " + LoginappAccess,
                 "Client-ID": AClient_id,

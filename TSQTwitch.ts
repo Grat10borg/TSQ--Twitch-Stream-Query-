@@ -46,24 +46,31 @@ let StreamerName = document.getElementById("StreamerName") as HTMLInputElement;
 StreamerName.addEventListener("change", function (event: any): void {});
 
 // Api Ref: https://dev.twitch.tv/docs/api/reference#get-games
-// Api Ref: https://dev.twitch.tv/docs/api/reference#search-categories // this one is in Use 
+// Api Ref: https://dev.twitch.tv/docs/api/reference#search-categories // this one is in Use
 let GameName = document.getElementById("GameNameInput") as HTMLInputElement;
 GameName.addEventListener("keyup", async function (event: any) {
-  if(event.target.value.length > 3) {
+  if (event.target.value.length > 3) {
     // Gets closest to written input like searching on twitch
     // if not 0
-    let resp = await HttpCaller("https://api.twitch.tv/helix/search/categories?"+"query=" + event.target.value);
-    if(resp != 0) {
-
+    //let resp = await HttpCaller("https://api.twitch.tv/helix/search/categories?"+"query=" + event.target.value);
+    let resp = await HttpCaller(
+      "https://api.twitch.tv/helix/search/categories?" +
+        "query=" +
+        event.target.value
+    );
+    if (resp != 0) {
       console.log(resp);
     } // if 0
     else {
       // Make Error Screen
     }
-    console.log("https://api.twitch.tv/helix/search/categories?"+"query=" + event.target.value);
+    console.log(
+      "https://api.twitch.tv/helix/search/categories?" +
+        "query=" +
+        event.target.value
+    );
     console.log(event.target.value);
   }
-  
 });
 
 // Functions
@@ -102,14 +109,15 @@ function validateToken(): number {
 }
 //#endregion
 
+
+
 //#region HttpCaller(HttpCall) multipurpose HttpCaller calls the Httpcall returns The Response if Success if not: 0
-// This makes most calls, intead of a lot of differnt functions this does them instead. 
-// TO find out what is called look where its called as the HTTPCALL would need to be sent over. 
+// This makes most calls, intead of a lot of differnt functions this does them instead.
+// TO find out what is called look where its called as the HTTPCALL would need to be sent over.
 async function HttpCaller(HttpCall: string) {
-  // API CALL
-  fetch(`${HttpCall}`, {
+  const response = await fetch(`${HttpCall}`, {
     headers: {
-      Authorization: "Bearer " + LoginappAccess, 
+      Authorization: "Bearer " + LoginappAccess,
       "Client-ID": AClient_id, // can also use Tclient_id. !! comment out Tclient if not being used !!
     },
   })
@@ -124,6 +132,6 @@ async function HttpCaller(HttpCall: string) {
       console.log(err);
       return 0;
     });
-    return 0;
+  return 0;
 }
 //#endregion

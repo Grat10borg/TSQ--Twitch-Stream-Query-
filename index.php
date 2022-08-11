@@ -37,5 +37,4 @@
     <script src="scripts/TSQTwitch.js"></script>
     <script src="css/bootstrap/js/bootstrap.js"></script>
 </body>
-
 </html>
