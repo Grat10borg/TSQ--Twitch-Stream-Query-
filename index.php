@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Heebo&family=Secular+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/bootstrap/css/bootstrap.css" type="text/css">
     <link rel="stylesheet" href="css/style.css" type="text/css">
+    <link rel="icon" type="image/x-icon" href="minecraftCornflowerIcon.png">
     <title>TSQ Twitch Stream Querier</title>
 </head>
 
@@ -21,12 +22,18 @@
         <form class="container col-rows-2 col-rows-1-sm col-6 " id="TwitchForm" method="POST">
             <!-- Make auto fill at some point : https://w3collective.com/autocomplete-search-javascript/ -->
             <div class="row mt-2">
-                <label class="text-center col-2 mt-2" for="Game">Catagory:</label>
-                <input class="col form-control my-2" id="GameNameInput" type="text" name="GameName">
+                <label id="GameLabel" class="text-center col mt-2" for="Game">Catagory:</label>
+                <div>
+                    <input class="col form-control my-2" placeholder="Minecraft..." id="GameNameInput" type="text" name="GameName">
+                    <ul class="ms-2 me-2" id="GameResults"></ul>
+                </div>
             </div>
             <div class="row mt-2">
-                <label class="text-center col-2 mt-2" for="TwitchHandle">Streamer:</label>
-                <input class="col form-control my-2" id="StreamerName" type="text" name="TwitchHandle">
+                <label id="StreamerLabel" class="text-center col mt-2" for="TwitchHandle">Streamer:</label>
+                <div>
+                    <input class="col form-control my-2" placeholder="marinemammalrescue..." id="StreamerName" type="text" name="TwitchHandle">
+                    <ul id="StreamResults"></ul>
+                </div>
             </div>
             <input class="btn submit row mt-3" type="submit" value="submit">
         </form>
@@ -37,4 +44,5 @@
     <script src="scripts/TSQTwitch.js"></script>
     <script src="css/bootstrap/js/bootstrap.js"></script>
 </body>
+
 </html>

@@ -8,12 +8,20 @@ body header {
   color: whitesmoke;
 }
 
-body h1, body h2, body h3, body h4, body h5, body h6 {
-  font-family: 'Secular One', sans-serif;
+body h1,
+body h2,
+body h3,
+body h4,
+body h5,
+body h6 {
+  font-family: "Secular One", sans-serif;
 }
 
-body p, body a, body label, body span {
-  font-family: 'Heebo', sans-serif;
+body p,
+body a,
+body label,
+body span {
+  font-family: "Heebo", sans-serif;
 }
 
 body form label {
@@ -21,9 +29,45 @@ body form label {
   font-size: large;
 }
 
+body form ul {
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  list-style-type: none;
+  list-style-position: inside;
+}
+
+body form ul li {
+  text-decoration: none;
+  color: whitesmoke;
+  background-color: cornflowerblue;
+  border: 2rem;
+}
+
+body form ul li:hover {
+  color: whitesmoke;
+  background-color: turquoise;
+}
+
+body form ul li:nth-child(odd) {
+  text-decoration: none;
+  color: cornflowerblue;
+  background-color: whitesmoke;
+}
+
+body form ul li:nth-child(odd):hover {
+  background-color: #b8ecf5;
+}
+
+body form ul li:after {
+  float: right;
+  margin-right: 1rem;
+  content: "?";
+}
+
 body form .submit {
   background-color: cornflowerblue;
-  color: aliceblue;
+  color: white;
 }
 
 body a {

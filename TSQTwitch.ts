@@ -39,39 +39,146 @@ if (validateToken() == 1) {
 let TwitchForm = document.getElementById("TwitchForm") as HTMLInputElement;
 TwitchForm.addEventListener("submit", function (event: any): void {
   event.preventDefault();
+  if (QueryName != "") {
+    //test
+  } else if (QueryGame != "") {
+  } else {
+    alert("Error No Category or Streamer Selected");
+  }
+  console.log(TwitchForm);
 });
 
+//#region Streamer Search drop down menu
 // https://dev.twitch.tv/docs/api/reference#get-users // Gets User Id from Username
-let StreamerName = document.getElementById("StreamerName") as HTMLInputElement;
-StreamerName.addEventListener("change", function (event: any): void {});
-
-// Api Ref: https://dev.twitch.tv/docs/api/reference#get-games
-// Api Ref: https://dev.twitch.tv/docs/api/reference#search-categories // this one is in Use
-let GameName = document.getElementById("GameNameInput") as HTMLInputElement;
-GameName.addEventListener("keyup", async function (event: any) {
+let StreamerName = document.getElementById("StreamerName") as HTMLInputElement; // <input>
+let StreamResults = document.getElementById(
+  "StreamResults"
+) as HTMLInputElement; // <ul>
+var Streamers = Array(); // Streamers is the name in the URL aka the original unique name
+var StreamerId = Array(); // Id of the Streamer
+var QueryName = ""; // the end result
+StreamerName.addEventListener("keyup", async function (event: any) {
   if (event.target.value.length > 3) {
-    // Gets closest to written input like searching on twitch
-    // if not 0
-    //let resp = await HttpCaller("https://api.twitch.tv/helix/search/categories?"+"query=" + event.target.value);
+    StreamResults.style.display = "block";
     let resp = await HttpCaller(
-      "https://api.twitch.tv/helix/search/categories?" +
-        "query=" +
-        event.target.value
+      // Gets closest to written input like searching on twitch
+      `https://api.twitch.tv/helix/search/channels?query=${event.target.value}`
     );
-    if (resp != 0) {
+    console.log(resp);
+    if (resp.length == 0) {
+      // NOT tested, its kinda hard to make fake error here
+      console.log("no results for query");
+    } else {
+      StreamerId = Array(); // Whats shown in the Channel
+      Streamers = Array(); // Whats shown in the URL and what you search with
+      // Response list found here: https://dev.twitch.tv/docs/api/reference#search-channels
       console.log(resp);
-    } // if 0
-    else {
-      // Make Error Screen
+      for (let index = 0; index < resp["data"].length; index++) {
+        Streamers.push(resp["data"][index]["broadcaster_login"]);
+        StreamerId.push(resp["data"][index]["id"]);
+      }
+      StreamResults.innerHTML = ""; // clears previous
+      console.log(Streamers);
+      // Placing selectable dropdown menu on Website
+      for (let index = 0; index < Streamers.length; index++) {
+        StreamResults.innerHTML +=
+          "<li class='pt-1 pb-1'>" + Streamers[index] + "</li>";
+      }
     }
-    console.log(
-      "https://api.twitch.tv/helix/search/categories?" +
-        "query=" +
-        event.target.value
-    );
-    console.log(event.target.value);
   }
 });
+StreamResults.addEventListener("click", function (event: any) {
+  const setValue = event.target.innerText;
+  QueryName = StreamerId[Streamers.indexOf(event.target.innerText)];
+  if (QueryGame == "") {
+    // Stops the Catagory label from saying "blank's recently streamed categories" when searching under a category
+    let Label = document.getElementById("GameLabel") as HTMLElement;
+    Label.innerHTML = `${setValue}'s Recently Streamed Categories`;
+  }
+  StreamerName.value = setValue;
+  this.innerHTML = "";
+});
+//#endregion
+
+//#region Game Search drop down menu
+// These event handlers (2) handle gathering data from the Twitch api and selecting the name they want
+// Note: Make the drop down menu disapier when you press ENTER and the inputted name equals one of the game names
+// Api Ref: https://dev.twitch.tv/docs/api/reference#get-games
+// Api Ref: https://dev.twitch.tv/docs/api/reference#search-categories // this one is in Use
+let autocompleteGame = document.getElementById(
+  "GameNameInput"
+) as HTMLInputElement; // <input>
+var GameresultsHTML = document.getElementById("GameResults") as HTMLElement; // <ul>
+var QueryGame = "";
+// Ran every key press
+autocompleteGame.addEventListener("keyup", async function (event: any) {
+  if (event.target.value.length > 3) {
+    GameresultsHTML.style.display = "block";
+    let resp;
+    let Games = Array();
+    if (QueryName != "") { 
+      // Gets recently played categories from a specific streamer
+
+      // QueryNames holds an Id
+      resp = await HttpCaller(
+        `https://api.twitch.tv/helix/videos?user_id=${QueryName}&sort=time`
+      );
+      console.log(
+        `https://api.twitch.tv/helix/videos?user_id=${QueryName}&sort=time`
+      );
+      console.log(resp);
+      if (resp.length == 0) {
+        // NOT tested, its kinda hard to make fake error here
+        console.log("ERROR: user videos not found.");
+      } else {
+        // response holds: Id (of game), Box_art_url, Name
+        for (let index = 0; index < resp["data"].length; index++) {
+          Games.push(resp["data"][index]["title"]);
+        }
+      }
+    } 
+    // if not searching under Streamer
+    else {
+      resp = await HttpCaller(
+        // Gets closest to written input like searching on twitch
+        `https://api.twitch.tv/helix/search/categories?query=${event.target.value}`
+      );
+      if (resp.length == 0) {
+        // NOT tested, its kinda hard to make fake error here
+        console.log("ERROR: No Caregories found");
+      } else {
+        // response holds: Id (of game), Box_art_url, Name
+        for (let index = 0; index < resp["data"].length; index++) {
+          Games.push(resp["data"][index]["name"]);
+        }
+      }
+      console.log(resp);
+
+      GameresultsHTML.innerHTML = ""; // clears previous
+      console.log(Games);
+      // Placing selectable dropdown menu on Website
+      for (let index = 0; index < Games.length; index++) {
+        GameresultsHTML.innerHTML +=
+          "<li class='pt-1 pb-1'>" + Games[index] + "</li>";
+      }
+    }
+  }
+});
+
+// Drop down made following this: https://w3collective.com/autocomplete-search-javascript/
+// selects the element you click on and makes the the input in the Games select
+GameresultsHTML.addEventListener("click", function (event: any) {
+  const setValue = event.target.innerText;
+  QueryGame = setValue; // used to test if a Game has been selected to stop labels from changing
+  if (QueryName == "") {
+    // Stops the label from changing when you select a game after selecting a channel.
+    let Label = document.getElementById("StreamerLabel") as HTMLElement;
+    Label.innerHTML = `Streamers Playing: ${setValue}`;
+  }
+  autocompleteGame.value = setValue;
+  this.innerHTML = "";
+});
+//#endregion
 
 // Functions
 
@@ -109,29 +216,41 @@ function validateToken(): number {
 }
 //#endregion
 
-
-
-//#region HttpCaller(HttpCall) multipurpose HttpCaller calls the Httpcall returns The Response if Success if not: 0
+// needs ValidateToken() to be ran first
+//#region [async] HttpCaller(HttpCall) multipurpose HttpCaller calls the Httpcall returns The Response if Success if not: 0
 // This makes most calls, intead of a lot of differnt functions this does them instead.
 // TO find out what is called look where its called as the HTTPCALL would need to be sent over.
 async function HttpCaller(HttpCall: string) {
-  const response = await fetch(`${HttpCall}`, {
+  const respon = await fetch(`${HttpCall}`, {
     headers: {
       Authorization: "Bearer " + LoginappAccess,
       "Client-ID": AClient_id, // can also use Tclient_id. !! comment out Tclient if not being used !!
     },
   })
-    .then((response) => response.json())
-    .then((response) => {
+    .then((respon) => respon.json())
+    .then((respon) => {
       // Return Response on Success
-      console.log(response);
-      return response;
+      return respon;
     })
     .catch((err) => {
       // Print Error if any. And return 0
       console.log(err);
-      return 0;
+      return err;
     });
-  return 0;
+  return respon;
 }
+//#endregion
+
+//#region GetResults: NOT IN USE, later this will sort games by how close it is and how pubular it is
+// Sorts to closest result from Twitch results but Twitch does it "Good enough" already. doesnt make sense to use this yet.
+//let results = getResults(event.target.value, Games);
+// function getResults(input: string, Games: Array<string>) {
+//   const results = [];
+//   for (let i = 0; i < Games.length; i++) {
+//     if (input === Games[i].slice(0, input.length)) {
+//       results.push(Games[i]);
+//     }
+//   }
+//   return results;
+// }
 //#endregion

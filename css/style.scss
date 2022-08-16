@@ -1,40 +1,76 @@
 body {
-    background-color: aliceblue;
+  background-color: aliceblue;
 
-    header {
-        min-height: 4rem;
-        background-color: cornflowerblue;
+  header {
+    min-height: 4rem;
+    background-color: cornflowerblue;
+    color: whitesmoke;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Secular One", sans-serif;
+  }
+  p,
+  a,
+  label,
+  span {
+    font-family: "Heebo", sans-serif;
+  }
+  form {
+    label {
+      color: darkblue;
+      font-size: large;
+    }
+    ul {
+    margin:0;
+    padding: 0;
+    text-align: center;
+    list-style-type: none;
+    list-style-position: inside;
+      li {
+        text-decoration: none;
         color: whitesmoke;
-    }
-    h1,h2,h3,h4,h5,h6 {
-      
-        font-family: 'Secular One', sans-serif;
-    }
-    p,a,label,span {
-        font-family: 'Heebo', sans-serif;
-    }
-    form {
-        label {
-            color: darkblue;
-            font-size: large;
-        }
-        
-        .submit {
-            background-color: cornflowerblue;
-            color: aliceblue;
-        }
-    }
-    a{
-        color: aquamarine;
-        cursor: pointer;
-    }
-    a:visited {
-        color: cadetblue;
-        cursor: default;
-    }
-    footer {
-        min-height: 4rem;
         background-color: cornflowerblue;
+        border: 2rem;
+      }
+      li:hover {
         color: whitesmoke;
+        background-color: turquoise;
+      }
+      li:nth-child(odd){
+        text-decoration: none;
+        color: cornflowerblue;
+        background-color: whitesmoke;
+      }
+      li:nth-child(odd):hover{
+        background-color: rgb(184, 236, 245);
+      }
+      li:after {
+        float: right;
+        margin-right: 1rem;
+        content: "?";
+      }
     }
+    .submit {
+      background-color: cornflowerblue;
+      color: white;
+    }
+  }
+  a {
+    color: aquamarine;
+    cursor: pointer;
+  }
+  a:visited {
+    color: cadetblue;
+    cursor: default;
+  }
+  footer {
+    min-height: 4rem;
+    background-color: cornflowerblue;
+    color: whitesmoke;
+  }
 }
