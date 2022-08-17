@@ -22,7 +22,7 @@
         <form class="container col-rows-2 col-rows-1-sm col-6 " id="TwitchForm" method="POST">
             <!-- Make auto fill at some point : https://w3collective.com/autocomplete-search-javascript/ -->
             <div class="row mt-2">
-                <label id="GameLabel" class="text-center col mt-2" for="Game">Catagory:</label>
+                <label id="GameLabel" class="text-center col mt-2" for="Game">Category:</label>
                 <div>
                     <input class="col form-control my-2" placeholder="Minecraft..." id="GameNameInput" type="text" name="GameName">
                     <ul class="ms-2 me-2" id="GameResults"></ul>
