@@ -15,7 +15,6 @@ body {
     font-family: "Secular One", sans-serif;
   }
   p,
-  a,
   label,
   span {
     font-family: "Heebo", sans-serif;
@@ -61,12 +60,14 @@ body {
     }
   }
   a {
-    color: aquamarine;
+    color: crimson;
     cursor: pointer;
+    text-align: center;
   }
   a:visited {
-    color: cadetblue;
+    color: coral;
     cursor: default;
+    text-align: center;
   }
   footer {
     min-height: 4rem;

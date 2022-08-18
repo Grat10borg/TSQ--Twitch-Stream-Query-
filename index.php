@@ -27,6 +27,7 @@
                     <input class="col form-control my-2" placeholder="Minecraft..." id="GameNameInput" type="text" name="GameName">
                     <ul class="ms-2 me-2" id="GameResults"></ul>
                 </div>
+                <ul id="SelectedStreamerSelect"></ul>
             </div>
             <div class="row mt-2">
                 <label id="StreamerLabel" class="text-center col mt-2" for="TwitchHandle">Streamer:</label>
@@ -34,9 +35,13 @@
                     <input class="col form-control my-2" placeholder="marinemammalrescue..." id="StreamerName" type="text" name="TwitchHandle">
                     <ul id="StreamResults"></ul>
                 </div>
+                <ul id="CategoryStreamSelect"></ul>
             </div>
             <input class="btn submit row mt-3" type="submit" value="submit">
         </form>
+        <div id="StreamDataDone">
+
+        </div>
     </main>
     <footer class="footer mt-auto py-3 fixed-bottom justify-content-center d-flex">
         <p>⚓ Til søs og så tilbage igen. ⛵ ..glemte du noget? 🦀🐟</p>
