@@ -25,7 +25,7 @@
                 <label id="GameLabel" class="text-center col mt-2" for="Game">Category:</label>
                 <div>
                     <input class="col form-control my-2" placeholder="Minecraft..." id="GameNameInput" type="text" name="GameName">
-                    <ul class="ms-2 me-2" id="GameResults"></ul>
+                    <ul class="ms-2 me-2" id="GameSelect"></ul>
                 </div>
                 <ul id="SelectedStreamerSelect"></ul>
             </div>
@@ -33,7 +33,7 @@
                 <label id="StreamerLabel" class="text-center col mt-2" for="TwitchHandle">Streamer:</label>
                 <div>
                     <input class="col form-control my-2" placeholder="marinemammalrescue..." id="StreamerName" type="text" name="TwitchHandle">
-                    <ul id="StreamResults"></ul>
+                    <ul id="StreamSelect"></ul>
                 </div>
                 <ul id="CategoryStreamSelect"></ul>
             </div>

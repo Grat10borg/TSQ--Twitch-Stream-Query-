@@ -21,11 +21,19 @@
 //part 3: https://dev.twitch.tv/docs/cli/token-command
 // App Access keys lets programs do things an anonomus user would be able to aka someone not logged in, so it can search streams and clips but cannot get you your Stream key or Personal Infomation.
 //#endregion
+//#region More links to api calls used in TSQ
+// https://dev.twitch.tv/docs/api/reference#get-videos // Offline streams + Highlights and more
+// https://dev.twitch.tv/docs/api/reference#get-streams // Online streams sorted by most pobular
+// https://dev.twitch.tv/docs/api/reference#get-users // Gets User Id from Username
+// Response list found here: https://dev.twitch.tv/docs/api/reference#search-channels
+//#endregion
 
-let Tclient_id = "tfh418mo6nmf2skaowwzubi8ca5z2t" as string; // Set in ValidateToken()
-let AClient_id = "";
-let LoginappAccess = "t6jkktho3qmuu2g2blzzljfgng03k3" as string; // !! Each App Acess Token lasts 60 Days before needing to be remade !!
+// Twitch Api Auth Vars
+let AClient_id = ""; // this is Set in ValidateToken()
+let AppAcessToken = "t6jkktho3qmuu2g2blzzljfgng03k3" as string; // !! Each App Acess Token lasts 60 Days before needing to be remade !!
 
+//#region Token validation and error handling
+// Validates token and makes an alert if its not.
 if (validateToken() == 1) {
   console.log("Token Validated Sucessfully");
 } else {
@@ -34,19 +42,228 @@ if (validateToken() == 1) {
     "The Token could also have expired: https://dev.twitch.tv/docs/authentication/register-app#registering-your-app"
   );
 }
+//#endregion
+
+//#region HTML elements Elements like <input> <ul> Note not all some are only needed in functions and is made on spot
+
+// form
+let TwitchForm = document.getElementById("TwitchForm") as HTMLInputElement;
+
+// Input
+let StreamerNameInput = document.getElementById(
+  "StreamerName"
+) as HTMLInputElement; // <input> this is the imput you'd write your Streamer Name in like: marinemammalrescue
+let GameNameInput = document.getElementById(
+  "GameNameInput"
+) as HTMLInputElement; // <input> searches categories for what you write in the input after 3 charaters though
+
+// Drop down Search <ul>'s
+let GameSelect = document.getElementById("GameSelect") as HTMLElement; // <ul> this ul is the same as stream select but instead of searching for streamers it searches categories
+let StreamSelect = document.getElementById("StreamSelect") as HTMLInputElement; // <ul> this ul is filled with li you click on to select a Stream
+
+// Selected Drop Down Select <ul>'s
+var SelectedCategoryStreamSelect = document.getElementById(
+  "CategoryStreamSelect"
+) as HTMLElement; // <ul> once you've selected a Category this is the ul thats filled with streams or VODs in that category
+let SelectedStreamerSelect = document.getElementById(
+  "SelectedStreamerSelect"
+) as HTMLElement; // <ul> If you select Streamer first then this is the ul that will be used to select with
+
+//#endregion
+
+//#region Global Vars
+let SVODTitles = Array();
+let VideoURL = Array();
+
+// vars for Streamer Searching input
+let LoginNameStreamers = Array(); // loginName of the streamer found. loginName is the same name thats in the URL of the channel
+let StreamerBroadcast_id = Array(); // broadcast_id of the streamer found. used to find exsactly the streamer you selected.
+let isLive = false as boolean; // bool for if the channel you wrote is live or not, makes TSQ collect the live stream into the selection
+
+let GameIds = Array(); // Contains id for games
+let GameTitles = Array(); // Contains titles for games
+let StreamTitles = Array(); // Contains the Titles of streams
+let StreamVODIDs = Array(); // Contains the IDs of the streams
+
+// TwitchForm, Submit eventhandler
+// basic Stuff
+let QueryURLs = Array(); // should hold url that can put into a link in when the form is submitted
+let QueryStreamVodTitle = Array(); // should hold both stream vod titles should be added to along with QueryUrl
+
+let QueryNameID = ""; // the end result
+let QueryGame = "";
+let QueryGameID = "";
+let QueryStreamerId = ""; // Holds broadcaster_id
+let QueryVodURL = ""; // Holds a Vod Id
+let QueryVodTitle = ""; // Holds a Vod title
+let QueryStream = ""; // Should hold data to get a link to the channel thats streaming
+
+//#endregion
 
 // Event handlers
 
-// https://dev.twitch.tv/docs/api/reference#get-videos // Offline streams + Highlights and more
-// https://dev.twitch.tv/docs/api/reference#get-streams // Online streams sorted by most pobular
-var QueryStreamerId = ""; // Holds broadcaster_id
-var QueryVodURL = ""; // Holds Vod Id
-var QueryTitle = "";
-var QueryStream = ""; // Should hold data to get a link to the channel thats streaming
-let TwitchForm = document.getElementById("TwitchForm") as HTMLInputElement;
-TwitchForm.addEventListener("submit", async function (event: any) {
-  event.preventDefault();
+// Searching inputs
+//#region Streamer Search input StreamerNameInput keyup Event handler
+StreamerNameInput.addEventListener("keyup", async function (event: any) {
+  StreamerBroadcast_id = Array(); // Whats shown in the Channel
+  LoginNameStreamers = Array(); // Whats shown in the URL and what you search with
+  isLive = false;
+  await SearchApi(
+    event,
+    StreamSelect,
+    `https://api.twitch.tv/helix/search/channels?query=${event.target.value}`,
+    "Error: failed gathering streamers",
+    false
+  );
+});
+//#endregion
 
+//#region GameNameInput keyup event handler
+// These event handlers (2) handle gathering data from the Twitch api and selecting the name they want
+// Note: Make the drop down menu disapier when you press ENTER and the inputted name equals one of the game names
+// Api Ref: https://dev.twitch.tv/docs/api/reference#get-games
+// Api Ref: https://dev.twitch.tv/docs/api/reference#search-categories // this one is in Use
+GameNameInput.addEventListener("keyup", async function (event: any) {
+  await SearchApi(
+    event,
+    GameSelect,
+    `https://api.twitch.tv/helix/search/categories?query=${event.target.value}`,
+    "could not find category",
+    true
+  );
+});
+//#endregion
+
+async function ClickApi(
+  event: any,
+  HTMLEventElement: HTMLElement,
+  GetStreams: boolean
+) {
+  const setValue = event.target.innerText;
+  QueryNameID = StreamerBroadcast_id[LoginNameStreamers.indexOf(event.target.innerText)]; // Sets QueryName to ID
+  GameNameInput.setAttribute("disabled", "true");
+  GameNameInput.setAttribute(
+    "placeholder",
+    "Select a VOD or STREAM you'd like to watch!"
+  );
+  // Stops the Catagory label from saying "blank's recently streamed categories" when searching under a category
+  let Label = document.getElementById("GameLabel") as HTMLElement;
+  Label.innerHTML = `${setValue}'s Recent Streams (Categories)`;
+
+  // Gets recent VODS OR LIVE STREAMS from selected Streamer
+  let resp;
+  if (isLive == true) {
+    resp = await HttpCaller(
+      `https://api.twitch.tv/helix/streams?user_id=${QueryNameID}`
+    );
+    console.log(resp);
+    QueryStreamVodTitle.push("[🔴 LIVE] " + resp["data"][0]["title"]);
+    QueryURLs.push(resp["data"][0]["url"]);
+  }
+  resp = await HttpCaller(
+    `https://api.twitch.tv/helix/videos?user_id=${QueryNameID}`
+  );
+  console.log(resp);
+  if (resp.length == 0) {
+    console.log("ERROR: user videos not found.");
+  } else {
+    // response holds: Id (of game), Box_art_url, Name
+    for (let index = 0; index < resp["data"].length; index++) {
+      QueryStreamVodTitle.push("[🔵 VOD] " + resp["data"][index]["title"]);
+      QueryURLs.push(resp["data"][index]["url"]);
+    }
+    SelectedStreamerSelect.innerHTML = ""; // clears previous
+    // Placing selectable dropdown menu on Website
+    for (let index = 0; index < QueryStreamVodTitle.length; index++) {
+      SelectedStreamerSelect.innerHTML +=
+        "<li class='pt-1 pb-1'>" + QueryStreamVodTitle[index] + "</li>";
+    }
+  }
+  StreamerNameInput.value = setValue;
+  HTMLEventElement.innerHTML = "";
+}
+
+// When Clicked Drop down menu
+//#region StreamSelect CLICK Event handler
+StreamSelect.addEventListener("click", async function (event: any) {
+  ClickApi(event,StreamSelect, false);
+});
+//#endregion
+
+//#region GameSelect click Event handler
+// Drop down made following this: https://w3collective.com/autocomplete-search-javascript/
+// selects the element you click on and makes the the input in the Games select
+GameSelect.addEventListener("click", async function (event: any) {
+  const setValue = event.target.innerText;
+  QueryGame = setValue; // used to test if a Game has been selected to stop labels from changing
+  QueryGameID = GameIds[GameTitles.indexOf(event.target.innerText)];
+  if (QueryNameID == "") {
+    // Setup changing label and Locking Streamer Search
+    let Label = document.getElementById("StreamerLabel") as HTMLElement;
+    Label.innerHTML = `Searching For Streamers Playing: ${setValue}`;
+    StreamerNameInput.setAttribute("disabled", "true");
+    StreamerNameInput.setAttribute(
+      "placeholder",
+      "Select a VOD or STREAM you'd like to watch!"
+    );
+
+    // Getting of Streams and if that fails Get VODS or Highlights
+
+    let resp = await HttpCaller(
+      `https://api.twitch.tv/helix/streams?game_id=${QueryGameID}`
+    );
+    console.log(resp);
+    if (resp.length == 0) {
+      StreamerNameInput.setAttribute("placeholder", "Could not find stream");
+    }
+    for (let index = 0; index < resp["data"].length; index++) {
+      StreamTitles.push("[🔴 Live] " + resp["data"][index]["title"]);
+      StreamVODIDs.push(resp["data"][index]["user_id"]);
+    }
+    for (let index = 0; index < StreamTitles.length; index++) {
+      let li = document.createElement("li") as HTMLElement;
+      li.classList.add("pt-1", "pb-1");
+      li.innerHTML = StreamTitles[index];
+      SelectedCategoryStreamSelect.append(li);
+    }
+    //#region This should be where we call another Function to Gather missing streams by trying to search for the game as VODS or Highlights
+
+    //#endregion
+  }
+  GameNameInput.value = setValue;
+  this.innerHTML = "";
+});
+//#endregion
+
+// Selected Event handlers. Only used after picking either a Category or Streamer.
+//#region SelectedStreamerSelect Event handler
+SelectedStreamerSelect.addEventListener("click", async function (event: any) {
+  const setValue = event.target.innerText;
+  QueryVodURL = VideoURL[SVODTitles.indexOf(setValue)];
+  QueryVodTitle = event.target.innerText;
+  GameNameInput.value = setValue;
+  this.innerHTML = "";
+});
+//#endregion
+
+//#region SelectedCategoryStreamSelect Event handler
+SelectedCategoryStreamSelect.addEventListener(
+  "click",
+  async function (event: any) {
+    const setValue = event.target.innerText;
+    console.log(StreamVODIDs[StreamTitles.indexOf(setValue)]);
+    QueryStreamerId = StreamVODIDs[StreamTitles.indexOf(setValue)];
+
+    StreamerNameInput.value = setValue;
+    this.innerHTML = "";
+  }
+);
+//#endregion
+
+// Form
+//#region Twitch form submit eventhandler
+TwitchForm.addEventListener("submit", async function (event: any) {
+  event.preventDefault(); // stops page form reloading
   if (QueryStreamerId != "") {
     // Gets a link to a channel use if the channel is LIVE
     let resp = await HttpCaller(
@@ -78,245 +295,14 @@ TwitchForm.addEventListener("submit", async function (event: any) {
       "StreamDataDone"
     ) as HTMLElement;
     let Atag = document.createElement("a") as HTMLElement;
-    Atag.setAttribute(
-      "href",
-      QueryVodURL
-    );
-    Atag.innerHTML = QueryTitle;
+    Atag.setAttribute("href", QueryVodURL);
+    Atag.innerHTML = QueryVodTitle;
     Atag.setAttribute("target", "blank_");
     Atag.classList.add("m-2");
     StreamDataDone.classList.add("d-flex", "justify-content-center");
     StreamDataDone.append(Atag);
   } else {
   }
-});
-
-//#region Streamer Search drop down menu
-// https://dev.twitch.tv/docs/api/reference#get-users // Gets User Id from Username
-let StreamerName = document.getElementById("StreamerName") as HTMLInputElement; // <input>
-let StreamResults = document.getElementById(
-  "StreamResults"
-) as HTMLInputElement; // <ul>
-let SelectedStreamerSelect = document.getElementById("SelectedStreamerSelect") as HTMLElement;
-var Streamers = Array(); // Streamers is the name in the URL aka the original unique name
-var StreamerId = Array(); // Id of the Streamer
-var isLive = false as boolean;
-var QueryNameID = ""; // the end result
-StreamerName.addEventListener("keyup", async function (event: any) {
-  if (event.target.value.length > 3) {
-    StreamResults.style.display = "block";
-    // Search normally
-    let resp = await HttpCaller(
-      // Gets closest to written input like searching on twitch
-      `https://api.twitch.tv/helix/search/channels?query=${event.target.value}`
-    );
-    console.log(resp);
-    if (resp.length == 0) {
-      // NOT tested, its kinda hard to make fake error here
-      console.log("no results for query");
-    } else {
-      StreamerId = Array(); // Whats shown in the Channel
-      Streamers = Array(); // Whats shown in the URL and what you search with
-      isLive = false;
-      // Response list found here: https://dev.twitch.tv/docs/api/reference#search-channels
-      console.log(resp);
-      for (let index = 0; index < resp["data"].length; index++) {
-        Streamers.push(resp["data"][index]["broadcaster_login"]);
-        StreamerId.push(resp["data"][index]["id"]);
-        isLive = resp["data"][index]["is_live"];
-      }
-
-      StreamResults.innerHTML = ""; // clears previous
-      console.log(Streamers);
-      // Placing selectable dropdown menu on Website
-      for (let index = 0; index < Streamers.length; index++) {
-        StreamResults.innerHTML +=
-          "<li class='pt-1 pb-1'>" + Streamers[index] + "</li>";
-      }
-    }
-  }
-});
-
-var SVODTitles = Array();
-var VideoURL = Array();
-StreamResults.addEventListener("click", async function (event: any) {
-  console.log("Clicked in Stream Results");
-  const setValue = event.target.innerText;
-  QueryNameID = StreamerId[Streamers.indexOf(event.target.innerText)]; // Sets QueryName to ID
-  if (QueryGame == "") {
-    autocompleteGame.setAttribute("disabled", "true");
-    autocompleteGame.setAttribute(
-      "placeholder",
-      "Select a VOD or STREAM you'd like to watch!"
-    );
-    // Stops the Catagory label from saying "blank's recently streamed categories" when searching under a category
-    let Label = document.getElementById("GameLabel") as HTMLElement;
-    Label.innerHTML = `${setValue}'s Recent Streams (Categories)`;
-
-    // Gets recent VODS OR LIVE STREAMS from selected Streamer
-    let resp;
-    // NOTE: place in function for use with the submit button
-    if (isLive == true) {
-      resp = await HttpCaller(
-        `https://api.twitch.tv/helix/streams?user_id=${QueryNameID}`
-      );
-      SVODTitles.push("[🔴 LIVE] " + resp["data"][0]["title"]);
-      // Live Videos dont have ids somehow make a link to the channel when theres a Live stream
-    }
-    resp = await HttpCaller(
-      `https://api.twitch.tv/helix/videos?user_id=${QueryNameID}`
-    );
-    console.log(resp);
-    if (resp.length == 0) {
-      // NOT tested, its kinda hard to make fake error here
-      console.log("ERROR: user videos not found.");
-    } else {
-      // response holds: Id (of game), Box_art_url, Name
-      for (let index = 0; index < resp["data"].length; index++) {
-        SVODTitles.push("[🔵 VOD] " + resp["data"][index]["title"]);
-        VideoURL.push(resp["data"][index]["url"]);
-      }
-      SelectedStreamerSelect.innerHTML = ""; // clears previous
-      // Placing selectable dropdown menu on Website
-      for (let index = 0; index < SVODTitles.length; index++) {
-        SelectedStreamerSelect.innerHTML +=
-          "<li class='pt-1 pb-1'>" + SVODTitles[index] + "</li>";
-      }
-    }
-  }
-  StreamerName.value = setValue;
-  this.innerHTML = "";
-});
-//#endregion
-
-//#region Game Search drop down menu
-// These event handlers (2) handle gathering data from the Twitch api and selecting the name they want
-// Note: Make the drop down menu disapier when you press ENTER and the inputted name equals one of the game names
-// Api Ref: https://dev.twitch.tv/docs/api/reference#get-games
-// Api Ref: https://dev.twitch.tv/docs/api/reference#search-categories // this one is in Use
-let autocompleteGame = document.getElementById(
-  "GameNameInput"
-) as HTMLInputElement; // <input>
-var GameresultsHTML = document.getElementById("GameResults") as HTMLElement; // <ul>
-var QueryGame = "";
-var QueryGameID = "";
-var GameNameIds = Array();
-var GetGames = Array();
-// Ran every key press
-autocompleteGame.addEventListener("keyup", async function (event: any) {
-  GameresultsHTML.style.display = "block";
-  let resp;
-  if (QueryNameID == "") {
-    if (event.target.value.length > 3) {
-      resp = await HttpCaller(
-        // Gets closest to written input like searching on twitch
-        `https://api.twitch.tv/helix/search/categories?query=${event.target.value}`
-      ); // clears previous
-      if (resp.length == 0) {
-        // NOT tested, its kinda hard to make fake error here
-        GameresultsHTML.innerHTML +=
-          "<p class='pt-1 pb-1'>No Categories found...</p>";
-      } else {
-        // response holds: Id (of game), Box_art_url, Name
-        for (let index = 0; index < resp["data"].length; index++) {
-          GetGames.push(resp["data"][index]["name"]);
-          GameNameIds.push(resp["data"][index]["id"]);
-        }
-        GameresultsHTML.innerHTML = "";
-        // Placing selectable dropdown menu on Website
-        for (let index = 0; index < GetGames.length; index++) {
-          GameresultsHTML.innerHTML +=
-            "<li class='pt-1 pb-1'>" + GetGames[index] + "</li>";
-        }
-      }
-    }
-  }
-});
-
-var Streams = Array(); // Contains the Titles of streams
-var StreamerIds = Array(); // Contains the IDs of the streams
-var categoryUl = document.getElementById("CategoryStreamSelect") as HTMLElement;
-// Drop down made following this: https://w3collective.com/autocomplete-search-javascript/
-// selects the element you click on and makes the the input in the Games select
-GameresultsHTML.addEventListener("click", async function (event: any) {
-  const setValue = event.target.innerText;
-  QueryGame = setValue; // used to test if a Game has been selected to stop labels from changing
-  QueryGameID = GameNameIds[GetGames.indexOf(event.target.innerText)];
-  if (QueryNameID == "") {
-    // Setup changing label and Locking Streamer Search
-    let Label = document.getElementById("StreamerLabel") as HTMLElement;
-    Label.innerHTML = `Searching For Streamers Playing: ${setValue}`;
-    StreamerName.setAttribute("disabled", "true");
-    StreamerName.setAttribute(
-      "placeholder",
-      "Select a VOD or STREAM you'd like to watch!"
-    );
-
-    // Getting of Streams and if that fails Get VODS or Highlights
-
-    let resp = await HttpCaller(
-      `https://api.twitch.tv/helix/streams?game_id=${QueryGameID}`
-    );
-    console.log(resp);
-    if (resp.length == 0) {
-      StreamerName.setAttribute("placeholder", "Could not find stream");
-    }
-    for (let index = 0; index < resp["data"].length; index++) {
-      Streams.push("[🔴 Live] " + resp["data"][index]["title"]);
-      StreamerIds.push(resp["data"][index]["user_id"]);
-    }
-    for (let index = 0; index < Streams.length; index++) {
-      let li = document.createElement("li") as HTMLElement;
-      li.classList.add("pt-1", "pb-1");
-      li.innerHTML = Streams[index];
-      categoryUl.append(li);
-    }
-    //#region This should be where we call another Function to Gather missing streams by trying to search for the game as VODS or Highlights
-    // if (resp["data"].length < 20) {
-    //   let MissingVid = Math.abs(resp["data"].length - 20);
-    //   let resp2 = await HttpCaller(
-    //     `https://api.twitch.tv/helix/videos?game_id=${QueryGameID}`
-    //   );
-    //   console.log(`https://api.twitch.tv/helix/videos?game_id=${QueryGameID}`);
-    //   console.log(resp2);
-    //   for (let index = 0; index < resp2["data"].length; index++) {
-    //     // Tests type of Video
-    //     if (resp2["data"][index]["type"] == "highlight") {
-    //       Games.push("[🟨 Highlight] " + resp2["data"][index]["title"]);
-    //     } else {
-    //       Games.push("[🔵 VOD] " + resp2["data"][index]["title"]);
-    //     }
-    //   }
-    //   for (let index = 0; index < Games.length; index++) {
-    //     let li = document.createElement("li") as HTMLElement;
-    //     li.classList.add("pt-1", "pb-1");
-    //     li.innerHTML=Games[index];
-    //     StreamResults.append(li);
-    //   }
-    // }
-    //#endregion
-  }
-
-  // When you click
-  autocompleteGame.value = setValue;
-  this.innerHTML = "";
-});
-
-SelectedStreamerSelect.addEventListener("click", async function (event: any) {
-  const setValue = event.target.innerText;
-  QueryVodURL = VideoURL[SVODTitles.indexOf(setValue)];
-  QueryTitle = event.target.innerText;
-  autocompleteGame.value = setValue;
-  this.innerHTML = "";
-});
-
-categoryUl.addEventListener("click", async function (event: any) {
-  const setValue = event.target.innerText;
-  console.log(StreamerIds[Streams.indexOf(setValue)]);
-  QueryStreamerId = StreamerIds[Streams.indexOf(setValue)];
-
-  StreamerName.value = setValue;
-  this.innerHTML = "";
 });
 //#endregion
 
@@ -327,7 +313,7 @@ categoryUl.addEventListener("click", async function (event: any) {
 function validateToken(): number {
   fetch("https://id.twitch.tv/oauth2/validate", {
     headers: {
-      Authorization: "Bearer " + LoginappAccess,
+      Authorization: "Bearer " + AppAcessToken,
     },
   })
     .then((resp) => resp.json())
@@ -363,7 +349,7 @@ function validateToken(): number {
 async function HttpCaller(HttpCall: string) {
   const respon = await fetch(`${HttpCall}`, {
     headers: {
-      Authorization: "Bearer " + LoginappAccess,
+      Authorization: "Bearer " + AppAcessToken,
       "Client-ID": AClient_id, // can also use Tclient_id. !! comment out Tclient if not being used !!
     },
   })
@@ -378,6 +364,57 @@ async function HttpCaller(HttpCall: string) {
       return err;
     });
   return respon;
+}
+//#endregion
+
+//#region SearchApi(event, UlDropdown, HTTPCALL, ErrorMsg, Getgame:Bool)
+// This is called every keyup in the Category or Streamer input.
+// calls apropriate httpcalls on what you type
+async function SearchApi(
+  event: any,
+  DropdownElement: HTMLElement, // <ul>
+  Httpcall: string,
+  ErrorMsg: string,
+  GetGame: boolean // false does not get game info.
+) {
+  // run only if over 3 characters
+  if (event.target.value.length > 3) {
+    DropdownElement.style.display = "block";
+    let resp = await HttpCaller(Httpcall);
+    console.log(resp);
+    // If httpcall returns No data
+    if (resp.length == 0) {
+      DropdownElement.innerHTML = ErrorMsg;
+    }
+    // if http call Does return data
+    else {
+      DropdownElement.innerHTML = ""; // clears previous
+      // if we're getting game info
+      if (GetGame == true) {
+        for (let index = 0; index < resp["data"].length; index++) {
+          GameTitles.push(resp["data"][index]["name"]);
+          GameIds.push(resp["data"][index]["id"]);
+        }
+        for (let index = 0; index < GameTitles.length; index++) {
+          GameSelect.innerHTML +=
+            "<li class='pt-1 pb-1'>" + GameTitles[index] + "</li>";
+        }
+      }
+      // if we're not getting game info instead gets streamer info
+      else {
+        for (let index = 0; index < resp["data"].length; index++) {
+          LoginNameStreamers.push(resp["data"][index]["broadcaster_login"]);
+          StreamerBroadcast_id.push(resp["data"][index]["id"]);
+          isLive = resp["data"][index]["is_live"];
+        }
+        // Placing selectable dropdown menu on Website
+        for (let index = 0; index < LoginNameStreamers.length; index++) {
+          DropdownElement.innerHTML +=
+            "<li class='pt-1 pb-1'>" + LoginNameStreamers[index] + "</li>";
+        }
+      }
+    }
+  }
 }
 //#endregion
 

@@ -8,9 +8,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-let Tclient_id = "tfh418mo6nmf2skaowwzubi8ca5z2t";
 let AClient_id = "";
-let LoginappAccess = "t6jkktho3qmuu2g2blzzljfgng03k3";
+let AppAcessToken = "t6jkktho3qmuu2g2blzzljfgng03k3";
 if (validateToken() == 1) {
     console.log("Token Validated Sucessfully");
 }
@@ -18,11 +17,132 @@ else {
     console.log("Error Validating Token, Did you input the correct one?");
     console.log("The Token could also have expired: https://dev.twitch.tv/docs/authentication/register-app#registering-your-app");
 }
-var QueryStreamerId = "";
-var QueryVodURL = "";
-var QueryTitle = "";
-var QueryStream = "";
 let TwitchForm = document.getElementById("TwitchForm");
+let StreamerNameInput = document.getElementById("StreamerName");
+let GameNameInput = document.getElementById("GameNameInput");
+let GameSelect = document.getElementById("GameSelect");
+let StreamSelect = document.getElementById("StreamSelect");
+var SelectedCategoryStreamSelect = document.getElementById("CategoryStreamSelect");
+let SelectedStreamerSelect = document.getElementById("SelectedStreamerSelect");
+let SVODTitles = Array();
+let VideoURL = Array();
+let LoginNameStreamers = Array();
+let StreamerBroadcast_id = Array();
+let isLive = false;
+let GameIds = Array();
+let GameTitles = Array();
+let StreamTitles = Array();
+let StreamVODIDs = Array();
+let QueryURLs = Array();
+let QueryStreamVodTitle = Array();
+let QueryNameID = "";
+let QueryGame = "";
+let QueryGameID = "";
+let QueryStreamerId = "";
+let QueryVodURL = "";
+let QueryVodTitle = "";
+let QueryStream = "";
+StreamerNameInput.addEventListener("keyup", function (event) {
+    return __awaiter(this, void 0, void 0, function* () {
+        StreamerBroadcast_id = Array();
+        LoginNameStreamers = Array();
+        isLive = false;
+        yield SearchApi(event, StreamSelect, `https://api.twitch.tv/helix/search/channels?query=${event.target.value}`, "Error: failed gathering streamers", false);
+    });
+});
+GameNameInput.addEventListener("keyup", function (event) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield SearchApi(event, GameSelect, `https://api.twitch.tv/helix/search/categories?query=${event.target.value}`, "could not find category", true);
+    });
+});
+function ClickApi(event, HTMLEventElement, GetStreams) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const setValue = event.target.innerText;
+        QueryNameID = StreamerBroadcast_id[LoginNameStreamers.indexOf(event.target.innerText)];
+        GameNameInput.setAttribute("disabled", "true");
+        GameNameInput.setAttribute("placeholder", "Select a VOD or STREAM you'd like to watch!");
+        let Label = document.getElementById("GameLabel");
+        Label.innerHTML = `${setValue}'s Recent Streams (Categories)`;
+        let resp;
+        if (isLive == true) {
+            resp = yield HttpCaller(`https://api.twitch.tv/helix/streams?user_id=${QueryNameID}`);
+            console.log(resp);
+            QueryStreamVodTitle.push("[🔴 LIVE] " + resp["data"][0]["title"]);
+            QueryURLs.push(resp["data"][0]["url"]);
+        }
+        resp = yield HttpCaller(`https://api.twitch.tv/helix/videos?user_id=${QueryNameID}`);
+        console.log(resp);
+        if (resp.length == 0) {
+            console.log("ERROR: user videos not found.");
+        }
+        else {
+            for (let index = 0; index < resp["data"].length; index++) {
+                QueryStreamVodTitle.push("[🔵 VOD] " + resp["data"][index]["title"]);
+                QueryURLs.push(resp["data"][index]["url"]);
+            }
+            SelectedStreamerSelect.innerHTML = "";
+            for (let index = 0; index < QueryStreamVodTitle.length; index++) {
+                SelectedStreamerSelect.innerHTML +=
+                    "<li class='pt-1 pb-1'>" + QueryStreamVodTitle[index] + "</li>";
+            }
+        }
+        StreamerNameInput.value = setValue;
+        HTMLEventElement.innerHTML = "";
+    });
+}
+StreamSelect.addEventListener("click", function (event) {
+    return __awaiter(this, void 0, void 0, function* () {
+        ClickApi(event, StreamSelect, false);
+    });
+});
+GameSelect.addEventListener("click", function (event) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const setValue = event.target.innerText;
+        QueryGame = setValue;
+        QueryGameID = GameIds[GameTitles.indexOf(event.target.innerText)];
+        if (QueryNameID == "") {
+            let Label = document.getElementById("StreamerLabel");
+            Label.innerHTML = `Searching For Streamers Playing: ${setValue}`;
+            StreamerNameInput.setAttribute("disabled", "true");
+            StreamerNameInput.setAttribute("placeholder", "Select a VOD or STREAM you'd like to watch!");
+            let resp = yield HttpCaller(`https://api.twitch.tv/helix/streams?game_id=${QueryGameID}`);
+            console.log(resp);
+            if (resp.length == 0) {
+                StreamerNameInput.setAttribute("placeholder", "Could not find stream");
+            }
+            for (let index = 0; index < resp["data"].length; index++) {
+                StreamTitles.push("[🔴 Live] " + resp["data"][index]["title"]);
+                StreamVODIDs.push(resp["data"][index]["user_id"]);
+            }
+            for (let index = 0; index < StreamTitles.length; index++) {
+                let li = document.createElement("li");
+                li.classList.add("pt-1", "pb-1");
+                li.innerHTML = StreamTitles[index];
+                SelectedCategoryStreamSelect.append(li);
+            }
+        }
+        GameNameInput.value = setValue;
+        this.innerHTML = "";
+    });
+});
+SelectedStreamerSelect.addEventListener("click", function (event) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const setValue = event.target.innerText;
+        QueryVodURL = VideoURL[SVODTitles.indexOf(setValue)];
+        QueryVodTitle = event.target.innerText;
+        GameNameInput.value = setValue;
+        this.innerHTML = "";
+    });
+});
+SelectedCategoryStreamSelect.addEventListener("click", function (event) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const setValue = event.target.innerText;
+        console.log(StreamVODIDs[StreamTitles.indexOf(setValue)]);
+        QueryStreamerId = StreamVODIDs[StreamTitles.indexOf(setValue)];
+        StreamerNameInput.value = setValue;
+        this.innerHTML = "";
+    });
+});
 TwitchForm.addEventListener("submit", function (event) {
     return __awaiter(this, void 0, void 0, function* () {
         event.preventDefault();
@@ -45,7 +165,7 @@ TwitchForm.addEventListener("submit", function (event) {
             let StreamDataDone = document.getElementById("StreamDataDone");
             let Atag = document.createElement("a");
             Atag.setAttribute("href", QueryVodURL);
-            Atag.innerHTML = QueryTitle;
+            Atag.innerHTML = QueryVodTitle;
             Atag.setAttribute("target", "blank_");
             Atag.classList.add("m-2");
             StreamDataDone.classList.add("d-flex", "justify-content-center");
@@ -55,167 +175,10 @@ TwitchForm.addEventListener("submit", function (event) {
         }
     });
 });
-let StreamerName = document.getElementById("StreamerName");
-let StreamResults = document.getElementById("StreamResults");
-let SelectedStreamerSelect = document.getElementById("SelectedStreamerSelect");
-var Streamers = Array();
-var StreamerId = Array();
-var isLive = false;
-var QueryNameID = "";
-StreamerName.addEventListener("keyup", function (event) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (event.target.value.length > 3) {
-            StreamResults.style.display = "block";
-            let resp = yield HttpCaller(`https://api.twitch.tv/helix/search/channels?query=${event.target.value}`);
-            console.log(resp);
-            if (resp.length == 0) {
-                console.log("no results for query");
-            }
-            else {
-                StreamerId = Array();
-                Streamers = Array();
-                isLive = false;
-                console.log(resp);
-                for (let index = 0; index < resp["data"].length; index++) {
-                    Streamers.push(resp["data"][index]["broadcaster_login"]);
-                    StreamerId.push(resp["data"][index]["id"]);
-                    isLive = resp["data"][index]["is_live"];
-                }
-                StreamResults.innerHTML = "";
-                console.log(Streamers);
-                for (let index = 0; index < Streamers.length; index++) {
-                    StreamResults.innerHTML +=
-                        "<li class='pt-1 pb-1'>" + Streamers[index] + "</li>";
-                }
-            }
-        }
-    });
-});
-var SVODTitles = Array();
-var VideoURL = Array();
-StreamResults.addEventListener("click", function (event) {
-    return __awaiter(this, void 0, void 0, function* () {
-        console.log("Clicked in Stream Results");
-        const setValue = event.target.innerText;
-        QueryNameID = StreamerId[Streamers.indexOf(event.target.innerText)];
-        if (QueryGame == "") {
-            autocompleteGame.setAttribute("disabled", "true");
-            autocompleteGame.setAttribute("placeholder", "Select a VOD or STREAM you'd like to watch!");
-            let Label = document.getElementById("GameLabel");
-            Label.innerHTML = `${setValue}'s Recent Streams (Categories)`;
-            let resp;
-            if (isLive == true) {
-                resp = yield HttpCaller(`https://api.twitch.tv/helix/streams?user_id=${QueryNameID}`);
-                SVODTitles.push("[🔴 LIVE] " + resp["data"][0]["title"]);
-            }
-            resp = yield HttpCaller(`https://api.twitch.tv/helix/videos?user_id=${QueryNameID}`);
-            console.log(resp);
-            if (resp.length == 0) {
-                console.log("ERROR: user videos not found.");
-            }
-            else {
-                for (let index = 0; index < resp["data"].length; index++) {
-                    SVODTitles.push("[🔵 VOD] " + resp["data"][index]["title"]);
-                    VideoURL.push(resp["data"][index]["url"]);
-                }
-                SelectedStreamerSelect.innerHTML = "";
-                for (let index = 0; index < SVODTitles.length; index++) {
-                    SelectedStreamerSelect.innerHTML +=
-                        "<li class='pt-1 pb-1'>" + SVODTitles[index] + "</li>";
-                }
-            }
-        }
-        StreamerName.value = setValue;
-        this.innerHTML = "";
-    });
-});
-let autocompleteGame = document.getElementById("GameNameInput");
-var GameresultsHTML = document.getElementById("GameResults");
-var QueryGame = "";
-var QueryGameID = "";
-var GameNameIds = Array();
-var GetGames = Array();
-autocompleteGame.addEventListener("keyup", function (event) {
-    return __awaiter(this, void 0, void 0, function* () {
-        GameresultsHTML.style.display = "block";
-        let resp;
-        if (QueryNameID == "") {
-            if (event.target.value.length > 3) {
-                resp = yield HttpCaller(`https://api.twitch.tv/helix/search/categories?query=${event.target.value}`);
-                if (resp.length == 0) {
-                    GameresultsHTML.innerHTML +=
-                        "<p class='pt-1 pb-1'>No Categories found...</p>";
-                }
-                else {
-                    for (let index = 0; index < resp["data"].length; index++) {
-                        GetGames.push(resp["data"][index]["name"]);
-                        GameNameIds.push(resp["data"][index]["id"]);
-                    }
-                    GameresultsHTML.innerHTML = "";
-                    for (let index = 0; index < GetGames.length; index++) {
-                        GameresultsHTML.innerHTML +=
-                            "<li class='pt-1 pb-1'>" + GetGames[index] + "</li>";
-                    }
-                }
-            }
-        }
-    });
-});
-var Streams = Array();
-var StreamerIds = Array();
-var categoryUl = document.getElementById("CategoryStreamSelect");
-GameresultsHTML.addEventListener("click", function (event) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const setValue = event.target.innerText;
-        QueryGame = setValue;
-        QueryGameID = GameNameIds[GetGames.indexOf(event.target.innerText)];
-        if (QueryNameID == "") {
-            let Label = document.getElementById("StreamerLabel");
-            Label.innerHTML = `Searching For Streamers Playing: ${setValue}`;
-            StreamerName.setAttribute("disabled", "true");
-            StreamerName.setAttribute("placeholder", "Select a VOD or STREAM you'd like to watch!");
-            let resp = yield HttpCaller(`https://api.twitch.tv/helix/streams?game_id=${QueryGameID}`);
-            console.log(resp);
-            if (resp.length == 0) {
-                StreamerName.setAttribute("placeholder", "Could not find stream");
-            }
-            for (let index = 0; index < resp["data"].length; index++) {
-                Streams.push("[🔴 Live] " + resp["data"][index]["title"]);
-                StreamerIds.push(resp["data"][index]["user_id"]);
-            }
-            for (let index = 0; index < Streams.length; index++) {
-                let li = document.createElement("li");
-                li.classList.add("pt-1", "pb-1");
-                li.innerHTML = Streams[index];
-                categoryUl.append(li);
-            }
-        }
-        autocompleteGame.value = setValue;
-        this.innerHTML = "";
-    });
-});
-SelectedStreamerSelect.addEventListener("click", function (event) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const setValue = event.target.innerText;
-        QueryVodURL = VideoURL[SVODTitles.indexOf(setValue)];
-        QueryTitle = event.target.innerText;
-        autocompleteGame.value = setValue;
-        this.innerHTML = "";
-    });
-});
-categoryUl.addEventListener("click", function (event) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const setValue = event.target.innerText;
-        console.log(StreamerIds[Streams.indexOf(setValue)]);
-        QueryStreamerId = StreamerIds[Streams.indexOf(setValue)];
-        StreamerName.value = setValue;
-        this.innerHTML = "";
-    });
-});
 function validateToken() {
     fetch("https://id.twitch.tv/oauth2/validate", {
         headers: {
-            Authorization: "Bearer " + LoginappAccess,
+            Authorization: "Bearer " + AppAcessToken,
         },
     })
         .then((resp) => resp.json())
@@ -245,7 +208,7 @@ function HttpCaller(HttpCall) {
     return __awaiter(this, void 0, void 0, function* () {
         const respon = yield fetch(`${HttpCall}`, {
             headers: {
-                Authorization: "Bearer " + LoginappAccess,
+                Authorization: "Bearer " + AppAcessToken,
                 "Client-ID": AClient_id,
             },
         })
@@ -258,5 +221,41 @@ function HttpCaller(HttpCall) {
             return err;
         });
         return respon;
+    });
+}
+function SearchApi(event, DropdownElement, Httpcall, ErrorMsg, GetGame) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (event.target.value.length > 3) {
+            DropdownElement.style.display = "block";
+            let resp = yield HttpCaller(Httpcall);
+            console.log(resp);
+            if (resp.length == 0) {
+                DropdownElement.innerHTML = ErrorMsg;
+            }
+            else {
+                DropdownElement.innerHTML = "";
+                if (GetGame == true) {
+                    for (let index = 0; index < resp["data"].length; index++) {
+                        GameTitles.push(resp["data"][index]["name"]);
+                        GameIds.push(resp["data"][index]["id"]);
+                    }
+                    for (let index = 0; index < GameTitles.length; index++) {
+                        GameSelect.innerHTML +=
+                            "<li class='pt-1 pb-1'>" + GameTitles[index] + "</li>";
+                    }
+                }
+                else {
+                    for (let index = 0; index < resp["data"].length; index++) {
+                        LoginNameStreamers.push(resp["data"][index]["broadcaster_login"]);
+                        StreamerBroadcast_id.push(resp["data"][index]["id"]);
+                        isLive = resp["data"][index]["is_live"];
+                    }
+                    for (let index = 0; index < LoginNameStreamers.length; index++) {
+                        DropdownElement.innerHTML +=
+                            "<li class='pt-1 pb-1'>" + LoginNameStreamers[index] + "</li>";
+                    }
+                }
+            }
+        }
     });
 }
