@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Heebo&family=Secular+One&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/bootstrap/css/bootstrap.css" type="text/css">
+    <link rel="stylesheet" href="css/bootstrap/css/bootstrap.min.css" type="text/css">
     <link rel="stylesheet" href="css/style.css" type="text/css">
     <link rel="icon" type="image/x-icon" href="minecraftCornflowerIcon.png">
     <title>TSQ Twitch Stream Querier</title>
