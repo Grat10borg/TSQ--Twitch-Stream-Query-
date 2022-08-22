@@ -20,7 +20,6 @@
     </header>
     <main class="pb-4 pt-4">
         <form class="container col-rows-2 col-rows-1-sm col-6 " id="TwitchForm" method="POST">
-            <!-- Make auto fill at some point : https://w3collective.com/autocomplete-search-javascript/ -->
             <div class="row mt-2">
                 <label id="GameLabel" class="text-center col mt-2" for="Game">Category:</label>
                 <div>
@@ -42,12 +41,18 @@
         <div id="StreamDataDone">
 
         </div>
+        <!-- Note: Iframes from Twitch Does not on Http it NEEDS Https  -->
+        <div class="d-flex justify-content-center mb-5 pb-5">
+        <iframe id="TwitchIFrame" hidden src="" height="520" width="1080" allowfullscreen>
+        </div>
+        
+        </iframe>
     </main>
     <footer class="footer mt-auto py-3 fixed-bottom justify-content-center d-flex">
         <p>⚓ Til søs og så tilbage igen. ⛵ ..glemte du noget? 🦀🐟</p>
     </footer>
     <script src="scripts/TSQTwitch.js"></script>
-    <script src="css/bootstrap/js/bootstrap.js"></script>
+    <script src="css/bootstrap/js/bootstrap.min.js"></script>
 </body>
 
 </html>
