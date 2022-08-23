@@ -152,7 +152,6 @@ function SearchApi(event, DropdownElement, Httpcall, ErrorMsg, GetGame) {
         if (event.target.value.length > 3) {
             DropdownElement.style.display = "block";
             let resp = yield HttpCaller(Httpcall);
-            console.log(resp);
             if (resp.length == 0) {
                 DropdownElement.innerHTML = ErrorMsg;
             }
@@ -204,7 +203,6 @@ function ClickApi(event, HTMLULEventElement, HTMLInputElementDisable, HTMLInputE
             }
             resp = yield HttpCaller(`https://api.twitch.tv/helix/videos?user_id=${StreamerBroadcast_id[LoginNameStreamers.indexOf(event.target.innerText)]}`);
             console.log(`https://api.twitch.tv/helix/videos?user_id=${StreamerBroadcast_id[LoginNameStreamers.indexOf(event.target.innerText)]}`);
-            console.log(resp);
             if (resp.length == 0) {
                 console.log("ERROR: user videos not found.");
             }
@@ -223,8 +221,6 @@ function ClickApi(event, HTMLULEventElement, HTMLInputElementDisable, HTMLInputE
         }
         else {
             let resp = yield HttpCaller(`https://api.twitch.tv/helix/streams?game_id=${GameIds[GameTitles.indexOf(event.target.innerText)]}`);
-            console.log("Game search");
-            console.log(resp);
             if (resp.length == 0) {
                 StreamerNameInput.setAttribute("placeholder", "Could not find stream");
             }

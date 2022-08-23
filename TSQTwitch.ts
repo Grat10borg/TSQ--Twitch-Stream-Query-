@@ -293,7 +293,6 @@ async function SearchApi(
   if (event.target.value.length > 3) {
     DropdownElement.style.display = "block";
     let resp = await HttpCaller(Httpcall);
-    console.log(resp);
     // If httpcall returns No data
     if (resp.length == 0) {
       DropdownElement.innerHTML = ErrorMsg;
@@ -387,7 +386,6 @@ async function ClickApi(
         StreamerBroadcast_id[LoginNameStreamers.indexOf(event.target.innerText)]
       }`
     );
-    console.log(resp);
     if (resp.length == 0) {
       console.log("ERROR: user videos not found.");
     }
@@ -413,8 +411,6 @@ async function ClickApi(
         GameIds[GameTitles.indexOf(event.target.innerText)]
       }`
     );
-    console.log("Game search");
-    console.log(resp);
     if (resp.length == 0) {
       StreamerNameInput.setAttribute("placeholder", "Could not find stream");
     }
