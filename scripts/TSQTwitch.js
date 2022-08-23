@@ -243,29 +243,30 @@ function ClickApi(event, HTMLULEventElement, HTMLInputElementDisable, HTMLInputE
 }
 function IframeBuilder(IframeId) {
     let IframeDiv = document.getElementById("IframeScripts");
-    let parent = Array("osca1877.aspitcloud.dk", "localhost");
+    let parent = Array();
+    var options;
     if (IframeId.match(/.*[A-Za-z].*/i)) {
         let channel = IframeId;
-        var options = {
+        options = {
             height: 520,
             width: 1080,
             channel,
             allowfullscreen: true,
             layout: 'video',
             muted: false,
-            parent
+            parent: ["osca1877.aspitcloud.dk", "osca1877", "localhost"]
         };
     }
     else {
         let video = IframeId;
-        var options = {
+        options = {
             height: 520,
             width: 1080,
             video,
             allowfullscreen: true,
             layout: 'video',
             muted: false,
-            parent
+            parent: ["osca1877.aspitcloud.dk", "osca1877", "localhost"]
         };
     }
     console.log(options);

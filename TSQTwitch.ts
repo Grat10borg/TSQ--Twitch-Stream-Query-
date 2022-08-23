@@ -1,3 +1,4 @@
+
 //!! App tokens can expire !!
 //#region Twitch App Secret Explanation
 // Follow these steps to make an APP id if missing or broken https://dev.twitch.tv/docs/authentication/register-app#registering-your-app
@@ -457,46 +458,39 @@ function IframeBuilder(IframeId: string) {
   let IframeDiv = document.getElementById("IframeScripts") as HTMLElement; // <div> // where the iframe gets placed
 
   // set attribute
-  let parent = Array("osca1877.aspitcloud.dk","localhost");
+  let parent = Array();
 
   // if ID is a channel: login_name or a video Id: id
-  
+  var options;
   if (IframeId.match(/.*[A-Za-z].*/i)) {
     // channel: 'marinemammalrescue',
     let channel = IframeId;
-    var options = {
+      options = {
       height: 520,
       width: 1080,
       channel,
       allowfullscreen: true,
       layout: 'video',
       muted: false,
-      parent
+      parent:  ["osca1877.aspitcloud.dk", "osca1877","localhost"]
     };
   } else {
     // video: '1567287413',
     let video = IframeId;
-    var options = {
+      options = {
       height: 520,
       width: 1080,
       video,
       allowfullscreen: true,
       layout: 'video',
       muted: false,
-      parent
+      parent:  ["osca1877.aspitcloud.dk", "osca1877","localhost"]
     };
   }
-
-
-  // This can be upgraded so users can specify size layout muted allowfull screen and such
-  // https://dev.twitch.tv/docs/embed/video-and-clips/
-
-  // options for Twitch Iframe
-  //let parent = Array("osca1877.aspitcloud.dk", "localhost/Twitch-Stream-Query");
-
- 
   console.log(options);
+
+  //@ts-ignore
   var player = new Twitch.Embed('twitch-stream', options);
-  //IframeDiv.append(player);
+  
 }
 //#endregion
