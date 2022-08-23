@@ -472,7 +472,7 @@ function IframeBuilder(IframeId: string) {
       allowfullscreen: true,
       layout: 'video',
       muted: false,
-      parent:  ["osca1877.aspitcloud.dk", "osca1877","localhost"]
+      parent:  ["osca1877.aspitcloud.dk","aspitcloud.dk","osca1877","localhost"]
     };
   } else {
     // video: '1567287413',
@@ -484,7 +484,7 @@ function IframeBuilder(IframeId: string) {
       allowfullscreen: true,
       layout: 'video',
       muted: false,
-      parent:  ["osca1877.aspitcloud.dk", "osca1877","localhost"]
+      parent:  ["osca1877.aspitcloud.dk","aspitcloud.dk","osca1877","localhost"]
     };
   }
   console.log(options);
