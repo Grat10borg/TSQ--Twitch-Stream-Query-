@@ -80,19 +80,20 @@ let LoginNameStreamers = Array(); // loginName of the streamer found. loginName 
 let StreamerBroadcast_id = Array(); // broadcast_id of the streamer found. used to find exsactly the streamer you selected.
 let isLive = false as boolean; // bool for if the channel you wrote is live or not, makes TSQ collect the live stream into the selection
 
+// Link and Title Holders
+let Vid_Links = Array(); // Holds all links to the queried streams/Videos
+let Vid_Titles = Array(); // Holds all the Titles of queried streams/Videos
+let IframeIds = Array(); // Holds all of either the userlogins or the Video Ids;
+let VidLink = ""; // Holds a SINGULAR selected Video / Stream Link
+let VidTitle = ""; // Holds a SINGULAR selected Video/ Stream Title
+let IframeId = ""; // Holds a SINGULAR selected Id from a selected Video/Stream
+ 
 // Used when searching with a category
 let GameIds = Array(); // Contains id for games
 let GameTitles = Array(); // Contains titles for games
 
-// Link and Title Holders
-let Vid_Links = Array();
-let Vid_Titles = Array();
-let VidLink = ""; // Holds a Vod Id
-let VidTitle = ""; // Holds a Vod title
-
 let QueryURLs = Array(); // should hold url that can put into a link in when the form is submitted
 let QueryStreamTitles = Array(); // should hold both stream vod titles should be added to along with QueryUrl
-
 //#endregion
 
 // > Event handlers
@@ -167,6 +168,7 @@ GameSelectUL.addEventListener("click", async function (event: any) {
 SelectedStreamerSelect.addEventListener("click", async function (event: any) {
   VidLink = Vid_Links[Vid_Titles.indexOf(event.target.innerText)];
   VidTitle = event.target.innerText; // text from Input
+  IframeId = IframeIds[Vid_Titles.indexOf(event.target.innerText)];
   GameNameInput.value = event.target.innerText;
   this.innerHTML = "";
 });
@@ -178,6 +180,7 @@ SelectedCategoryStreamSelect.addEventListener(
   async function (event: any) {
     VidTitle = event.target.innerText;
     VidLink = Vid_Links[Vid_Titles.indexOf(event.target.innerText)];
+    IframeId = IframeIds[Vid_Titles.indexOf(event.target.innerText)];
     StreamerNameInput.value = event.target.innerText;
     this.innerHTML = "";
   }
@@ -189,9 +192,8 @@ SelectedCategoryStreamSelect.addEventListener(
 TwitchForm.addEventListener("submit", async function (event: any) {
   event.preventDefault(); // stops page form reloading
   if (VidLink != "") {
-    console.log(VidLink);
 
-    // do more with the data later unsure what
+    // places a link to the stream on the Website
     let StreamDataDone = document.getElementById(
       "StreamDataDone"
     ) as HTMLElement;
@@ -202,22 +204,21 @@ TwitchForm.addEventListener("submit", async function (event: any) {
     Atag.classList.add("m-2");
     StreamDataDone.classList.add("d-flex", "justify-content-center");
     StreamDataDone.append(Atag);
-    
-    let Iframe = document.getElementById("TwitchIFrame") as HTMLElement;
-    Iframe.setAttribute("src",`https://player.twitch.tv/?channel=marinemammalrescue&parent=https://osca1877.aspitcloud.dk/`);
-    Iframe.hidden=false;
-  }
-  else {
+
+    // builds a Twitch Iframe of the Stream/Video
+    IframeBuilder(IframeId);
+  } else {
     // Sometimes the API makes a mistake? atleast thats what they say here
     // "there may be duplicate or missing streams, as viewers join and leave streams."
     // https://dev.twitch.tv/docs/api/reference#get-streams
-    alert("Did not find a link. try running the program again")
+    alert("Did not find a link. try running the program again");
   }
 });
 //#endregion
 
 // > Functions
 
+// needs a VALID Twitch App Auth Token
 //#region validateToken() Validates Token if sucessful returns 1 if not 0
 // Calls the Twitch api with Out App Acess Token and returns a ClientId and tells us if the App Acess Token is Valid or Not
 function validateToken(): number {
@@ -302,13 +303,13 @@ async function SearchApi(
       DropdownElement.innerHTML = ""; // clears previous
       // if we're getting game info
       if (GetGame == true) {
-        GameTitles=Array();
-        GameIds=Array();
+        GameTitles = Array();
+        GameIds = Array();
         for (let index = 0; index < resp["data"].length; index++) {
           GameTitles.push(resp["data"][index]["name"]);
           GameIds.push(resp["data"][index]["id"]);
         }
-        GameSelectUL.innerHTML="";
+        GameSelectUL.innerHTML = "";
         for (let index = 0; index < GameTitles.length; index++) {
           GameSelectUL.innerHTML +=
             "<li class='pt-1 pb-1'>" + GameTitles[index] + "</li>";
@@ -316,15 +317,15 @@ async function SearchApi(
       }
       // if we're not getting game info instead gets streamer info
       else {
-        LoginNameStreamers=Array();
-        StreamerBroadcast_id=Array();
+        LoginNameStreamers = Array();
+        StreamerBroadcast_id = Array();
         for (let index = 0; index < resp["data"].length; index++) {
           LoginNameStreamers.push(resp["data"][index]["broadcaster_login"]);
           StreamerBroadcast_id.push(resp["data"][index]["id"]);
           isLive = resp["data"][index]["is_live"];
         }
         // Placing selectable dropdown menu on Website
-        DropdownElement.innerHTML="";
+        DropdownElement.innerHTML = "";
         for (let index = 0; index < LoginNameStreamers.length; index++) {
           DropdownElement.innerHTML +=
             "<li class='pt-1 pb-1'>" + LoginNameStreamers[index] + "</li>";
@@ -361,7 +362,8 @@ async function ClickApi(
   if (GetStreams == true) {
     // IF we want to get out streams
     // Gets recent VODS OR LIVE STREAMS from selected Streamer
-    if (isLive == true) { // if we've detected that the channel is live
+    if (isLive == true) {
+      // if we've detected that the channel is live
       resp = await HttpCaller(
         `https://api.twitch.tv/helix/streams?user_id=${
           StreamerBroadcast_id[
@@ -373,24 +375,28 @@ async function ClickApi(
       Vid_Titles.push("[🔴 LIVE] " + resp["data"][0]["title"]);
       // Makes a link to the channel, live streams does not have unique links
       Vid_Links.push(`https://www.twitch.tv/${resp["data"][0]["user_login"]}`);
+      IframeIds.push(resp["data"][0]["user_login"]);
     }
     resp = await HttpCaller(
       `https://api.twitch.tv/helix/videos?user_id=${
         StreamerBroadcast_id[LoginNameStreamers.indexOf(event.target.innerText)]
       }`
     );
-    console.log(`https://api.twitch.tv/helix/videos?user_id=${
-      StreamerBroadcast_id[LoginNameStreamers.indexOf(event.target.innerText)]
-    }`);
+    console.log(
+      `https://api.twitch.tv/helix/videos?user_id=${
+        StreamerBroadcast_id[LoginNameStreamers.indexOf(event.target.innerText)]
+      }`
+    );
     console.log(resp);
     if (resp.length == 0) {
       console.log("ERROR: user videos not found.");
-    } 
+    }
     // Getting Vods of the channel
     else {
       for (let index = 0; index < resp["data"].length; index++) {
         Vid_Titles.push("[🔵 VOD] " + resp["data"][index]["title"]); // Title of VOD
         Vid_Links.push(resp["data"][index]["url"]); // Link to VOD
+        IframeIds.push(resp["data"][index]["id"]);
       }
       SelectedStreamerSelect.innerHTML = ""; // clears previous
       // Placing selectable dropdown menu on Website
@@ -418,6 +424,7 @@ async function ClickApi(
       Vid_Links.push(
         `https://www.twitch.tv/${resp["data"][index]["user_login"]}`
       );
+      IframeIds.push(resp["data"][index]["user_login"]);
     }
     //#region Maybe later VOD / Video Get. has a weird glitch and doesnt return anything.
     // here you would get the VODS from the categories but for some reason they return just fine no error but theres no data?
@@ -432,7 +439,7 @@ async function ClickApi(
     // );
     // console.log(resp2);
     //#endregion
-    SelectedCategoryStreamSelect.innerHTML=""; // clear previous
+    SelectedCategoryStreamSelect.innerHTML = ""; // clear previous
     for (let index = 0; index < Vid_Titles.length; index++) {
       let li = document.createElement("li") as HTMLElement;
       li.classList.add("pt-1", "pb-1");
@@ -441,7 +448,48 @@ async function ClickApi(
     }
   }
 
-  HTMLInputElementSet.value = event.target.innerText;; // sets the input with the selected value
+  HTMLInputElementSet.value = event.target.innerText; // sets the input with the selected value
   HTMLULEventElement.innerHTML = ""; // clears drop down menu. removing it
+}
+//#endregion
+
+// Needs ClickApi to be Ran first. / needs videoId or LoginName.
+//#region IframeBuilder(IframeId: string) // accepts both video_id and login_name
+// ran when you click submit. sets an Iframe on the website
+function IframeBuilder(IframeId: string) {
+  // setup
+  let IframeDiv = document.getElementById("IframeScripts") as HTMLElement; // <div> // where the iframe gets placed
+  let IframeScripts = document.createElement("script") as HTMLElement; // <div> where we place stuff for the Twitch Iframe Constuctor
+  let IframeType: string;
+
+  // set attribute
+  IframeScripts.setAttribute("type", "text/javascript");
+  
+  // if ID is a channel: login_name or a video Id: id
+  if (IframeId.match(/.*[A-Za-z].*/i)) {
+    // channel: 'marinemammalrescue',
+    IframeType = `channel: '${IframeId}',`;
+  } else {
+    // video: '1567287413',
+    IframeType = `video: '${IframeId}',`;
+  }
+
+
+  // This can be upgraded so users can specify size layout muted allowfull screen and such
+  // https://dev.twitch.tv/docs/embed/video-and-clips/
+
+  // options for Twitch Iframe
+  IframeScripts.innerHTML =
+    "var options = {" +
+    "height: 520," +
+    "width: 1080," +
+    `${IframeType}` +
+    "allowfullscreen: true," +
+    "layout: 'video'," +
+    " muted: false" +
+    "};" +
+    "var player = new Twitch.Embed('twitch-stream', options);";
+  // place iframe options on website
+  IframeDiv.append(IframeScripts);
 }
 //#endregion

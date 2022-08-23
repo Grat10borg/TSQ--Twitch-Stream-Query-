@@ -27,12 +27,14 @@ let SelectedStreamerSelect = document.getElementById("SelectedStreamerSelect");
 let LoginNameStreamers = Array();
 let StreamerBroadcast_id = Array();
 let isLive = false;
-let GameIds = Array();
-let GameTitles = Array();
 let Vid_Links = Array();
 let Vid_Titles = Array();
+let IframeIds = Array();
 let VidLink = "";
 let VidTitle = "";
+let IframeId = "";
+let GameIds = Array();
+let GameTitles = Array();
 let QueryURLs = Array();
 let QueryStreamTitles = Array();
 StreamerNameInput.addEventListener("keyup", function (event) {
@@ -64,6 +66,7 @@ SelectedStreamerSelect.addEventListener("click", function (event) {
     return __awaiter(this, void 0, void 0, function* () {
         VidLink = Vid_Links[Vid_Titles.indexOf(event.target.innerText)];
         VidTitle = event.target.innerText;
+        IframeId = IframeIds[Vid_Titles.indexOf(event.target.innerText)];
         GameNameInput.value = event.target.innerText;
         this.innerHTML = "";
     });
@@ -72,6 +75,7 @@ SelectedCategoryStreamSelect.addEventListener("click", function (event) {
     return __awaiter(this, void 0, void 0, function* () {
         VidTitle = event.target.innerText;
         VidLink = Vid_Links[Vid_Titles.indexOf(event.target.innerText)];
+        IframeId = IframeIds[Vid_Titles.indexOf(event.target.innerText)];
         StreamerNameInput.value = event.target.innerText;
         this.innerHTML = "";
     });
@@ -80,7 +84,6 @@ TwitchForm.addEventListener("submit", function (event) {
     return __awaiter(this, void 0, void 0, function* () {
         event.preventDefault();
         if (VidLink != "") {
-            console.log(VidLink);
             let StreamDataDone = document.getElementById("StreamDataDone");
             let Atag = document.createElement("a");
             Atag.setAttribute("href", VidLink);
@@ -89,9 +92,7 @@ TwitchForm.addEventListener("submit", function (event) {
             Atag.classList.add("m-2");
             StreamDataDone.classList.add("d-flex", "justify-content-center");
             StreamDataDone.append(Atag);
-            let Iframe = document.getElementById("TwitchIFrame");
-            Iframe.setAttribute("src", `https://player.twitch.tv/?channel=marinemammalrescue&parent=https://osca1877.aspitcloud.dk/`);
-            Iframe.hidden = false;
+            IframeBuilder(IframeId);
         }
         else {
             alert("Did not find a link. try running the program again");
@@ -199,6 +200,7 @@ function ClickApi(event, HTMLULEventElement, HTMLInputElementDisable, HTMLInputE
                 resp = yield HttpCaller(`https://api.twitch.tv/helix/streams?user_id=${StreamerBroadcast_id[LoginNameStreamers.indexOf(event.target.innerText)]}`);
                 Vid_Titles.push("[🔴 LIVE] " + resp["data"][0]["title"]);
                 Vid_Links.push(`https://www.twitch.tv/${resp["data"][0]["user_login"]}`);
+                IframeIds.push(resp["data"][0]["user_login"]);
             }
             resp = yield HttpCaller(`https://api.twitch.tv/helix/videos?user_id=${StreamerBroadcast_id[LoginNameStreamers.indexOf(event.target.innerText)]}`);
             console.log(`https://api.twitch.tv/helix/videos?user_id=${StreamerBroadcast_id[LoginNameStreamers.indexOf(event.target.innerText)]}`);
@@ -210,6 +212,7 @@ function ClickApi(event, HTMLULEventElement, HTMLInputElementDisable, HTMLInputE
                 for (let index = 0; index < resp["data"].length; index++) {
                     Vid_Titles.push("[🔵 VOD] " + resp["data"][index]["title"]);
                     Vid_Links.push(resp["data"][index]["url"]);
+                    IframeIds.push(resp["data"][index]["id"]);
                 }
                 SelectedStreamerSelect.innerHTML = "";
                 for (let index = 0; index < Vid_Titles.length; index++) {
@@ -228,6 +231,7 @@ function ClickApi(event, HTMLULEventElement, HTMLInputElementDisable, HTMLInputE
             for (let index = 0; index < resp["data"].length; index++) {
                 Vid_Titles.push("[🔴 Live] " + resp["data"][index]["title"]);
                 Vid_Links.push(`https://www.twitch.tv/${resp["data"][index]["user_login"]}`);
+                IframeIds.push(resp["data"][index]["user_login"]);
             }
             SelectedCategoryStreamSelect.innerHTML = "";
             for (let index = 0; index < Vid_Titles.length; index++) {
@@ -238,7 +242,29 @@ function ClickApi(event, HTMLULEventElement, HTMLInputElementDisable, HTMLInputE
             }
         }
         HTMLInputElementSet.value = event.target.innerText;
-        ;
         HTMLULEventElement.innerHTML = "";
     });
+}
+function IframeBuilder(IframeId) {
+    let IframeDiv = document.getElementById("IframeScripts");
+    let IframeScripts = document.createElement("script");
+    let IframeType;
+    IframeScripts.setAttribute("type", "text/javascript");
+    if (IframeId.match(/.*[A-Za-z].*/i)) {
+        IframeType = `channel: '${IframeId}',`;
+    }
+    else {
+        IframeType = `video: '${IframeId}',`;
+    }
+    IframeScripts.innerHTML =
+        "var options = {" +
+            "height: 520," +
+            "width: 1080," +
+            `${IframeType}` +
+            "allowfullscreen: true," +
+            "layout: 'video'," +
+            " muted: false" +
+            "};" +
+            "var player = new Twitch.Embed('twitch-stream', options);";
+    IframeDiv.append(IframeScripts);
 }

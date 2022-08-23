@@ -42,17 +42,20 @@
 
         </div>
         <!-- Note: Iframes from Twitch Does not on Http it NEEDS Https  -->
-        <div class="d-flex justify-content-center mb-5 pb-5">
-        <iframe id="TwitchIFrame" hidden src="" height="520" width="1080" allowfullscreen>
+        <!-- IF YOU SEE BLOCKED BY CLIENT IN THE CONSOLE ITS LIKELY YOUR AD BLOCKER -->
+        <div class="d-flex justify-content-center m-5 mb-5">
+            <div id="twitch-stream"></div>
+            <div id="IframeScripts"></div>
         </div>
-        
-        </iframe>
+
+
     </main>
     <footer class="footer mt-auto py-3 fixed-bottom justify-content-center d-flex">
         <p>⚓ Til søs og så tilbage igen. ⛵ ..glemte du noget? 🦀🐟</p>
     </footer>
-    <script src="scripts/TSQTwitch.js"></script>
-    <script src="css/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://embed.twitch.tv/embed/v1.js"></script> 
+    <script type="text/javascript" src="scripts/TSQTwitch.js"></script>
+    <script type="text/javascript" src="css/bootstrap/js/bootstrap.min.js"></script>
 </body>
 
 </html>
