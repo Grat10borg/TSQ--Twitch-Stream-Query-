@@ -45,7 +45,6 @@
         <!-- IF YOU SEE BLOCKED BY CLIENT IN THE CONSOLE ITS LIKELY YOUR AD BLOCKER -->
         <div class="d-flex justify-content-center m-5 mb-5">
             <div id="twitch-stream"></div>
-            <div id="IframeScripts"></div>
         </div>
 
 

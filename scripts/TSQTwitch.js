@@ -243,24 +243,31 @@ function ClickApi(event, HTMLULEventElement, HTMLInputElementDisable, HTMLInputE
 }
 function IframeBuilder(IframeId) {
     let IframeDiv = document.getElementById("IframeScripts");
-    let IframeScripts = document.createElement("script");
-    let IframeType;
-    IframeScripts.setAttribute("type", "text/javascript");
+    let parent = Array("osca1877.aspitcloud.dk", "localhost");
     if (IframeId.match(/.*[A-Za-z].*/i)) {
-        IframeType = `channel: '${IframeId}',`;
+        let channel = IframeId;
+        var options = {
+            height: 520,
+            width: 1080,
+            channel,
+            allowfullscreen: true,
+            layout: 'video',
+            muted: false,
+            parent
+        };
     }
     else {
-        IframeType = `video: '${IframeId}',`;
+        let video = IframeId;
+        var options = {
+            height: 520,
+            width: 1080,
+            video,
+            allowfullscreen: true,
+            layout: 'video',
+            muted: false,
+            parent
+        };
     }
-    IframeScripts.innerHTML =
-        "var options = {" +
-            "height: 520," +
-            "width: 1080," +
-            `${IframeType}` +
-            "allowfullscreen: true," +
-            "layout: 'video'," +
-            " muted: false" +
-            "};" +
-            "var player = new Twitch.Embed('twitch-stream', options);";
-    IframeDiv.append(IframeScripts);
+    console.log(options);
+    var player = new Twitch.Embed('twitch-stream', options);
 }

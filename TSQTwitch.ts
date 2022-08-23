@@ -455,19 +455,36 @@ async function ClickApi(
 function IframeBuilder(IframeId: string) {
   // setup
   let IframeDiv = document.getElementById("IframeScripts") as HTMLElement; // <div> // where the iframe gets placed
-  let IframeScripts = document.createElement("script") as HTMLElement; // <div> where we place stuff for the Twitch Iframe Constuctor
-  let IframeType: string;
 
   // set attribute
-  IframeScripts.setAttribute("type", "text/javascript");
-  
+  let parent = Array("osca1877.aspitcloud.dk","localhost");
+
   // if ID is a channel: login_name or a video Id: id
+  
   if (IframeId.match(/.*[A-Za-z].*/i)) {
     // channel: 'marinemammalrescue',
-    IframeType = `channel: '${IframeId}',`;
+    let channel = IframeId;
+    var options = {
+      height: 520,
+      width: 1080,
+      channel,
+      allowfullscreen: true,
+      layout: 'video',
+      muted: false,
+      parent
+    };
   } else {
     // video: '1567287413',
-    IframeType = `video: '${IframeId}',`;
+    let video = IframeId;
+    var options = {
+      height: 520,
+      width: 1080,
+      video,
+      allowfullscreen: true,
+      layout: 'video',
+      muted: false,
+      parent
+    };
   }
 
 
@@ -475,17 +492,11 @@ function IframeBuilder(IframeId: string) {
   // https://dev.twitch.tv/docs/embed/video-and-clips/
 
   // options for Twitch Iframe
-  IframeScripts.innerHTML =
-    "var options = {" +
-    "height: 520," +
-    "width: 1080," +
-    `${IframeType}` +
-    "allowfullscreen: true," +
-    "layout: 'video'," +
-    " muted: false" +
-    "};" +
-    "var player = new Twitch.Embed('twitch-stream', options);";
-  // place iframe options on website
-  IframeDiv.append(IframeScripts);
+  //let parent = Array("osca1877.aspitcloud.dk", "localhost/Twitch-Stream-Query");
+
+ 
+  console.log(options);
+  var player = new Twitch.Embed('twitch-stream', options);
+  //IframeDiv.append(player);
 }
 //#endregion
