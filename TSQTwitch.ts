@@ -31,7 +31,7 @@
 
 // > Twitch Api Auth Vars
 let AClient_id = ""; // this is Set in ValidateToken()
-let AppAcessToken = "t6jkktho3qmuu2g2blzzljfgng03k3" as string; // !! Each App Acess Token lasts 60 Days before needing to be remade !!
+let AppAcessToken = "1745gmml661nj0604r5emf94wf4xc3" as string; // !! Each App Acess Token lasts 60 Days before needing to be remade !!
 
 //#region Token validation and error handling
 // Validates token and makes an alert if its not.

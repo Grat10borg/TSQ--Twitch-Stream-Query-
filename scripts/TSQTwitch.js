@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 let AClient_id = "";
-let AppAcessToken = "t6jkktho3qmuu2g2blzzljfgng03k3";
+let AppAcessToken = "1745gmml661nj0604r5emf94wf4xc3";
 if (validateToken() == 1) {
     console.log("Token Validated Sucessfully");
 }
