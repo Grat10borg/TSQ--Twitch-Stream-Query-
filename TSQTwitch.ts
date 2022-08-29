@@ -240,7 +240,6 @@ function validateToken(): number {
       }
       if (resp.client_id) {
         AClient_id = resp.client_id;
-        //console.log(Tclient_id);
         return 1;
       }
       console.log("unexpected Output");
