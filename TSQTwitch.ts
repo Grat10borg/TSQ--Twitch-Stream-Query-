@@ -455,10 +455,7 @@ async function ClickApi(
 function IframeBuilder(IframeId: string) {
   // setup
   let IframeDiv = document.getElementById("IframeScripts") as HTMLElement; // <div> // where the iframe gets placed
-
-  // set attribute
-  let parent = Array();
-
+  
   // if ID is a channel: login_name or a video Id: id
   var options;
   if (IframeId.match(/.*[A-Za-z].*/i)) {
