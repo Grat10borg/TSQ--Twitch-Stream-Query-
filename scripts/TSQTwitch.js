@@ -92,6 +92,7 @@ TwitchForm.addEventListener("submit", function (event) {
             Atag.classList.add("m-2");
             StreamDataDone.classList.add("d-flex", "justify-content-center");
             StreamDataDone.append(Atag);
+            console.log(IframeId);
             IframeBuilder(IframeId);
         }
         else {
@@ -243,7 +244,6 @@ function ClickApi(event, HTMLULEventElement, HTMLInputElementDisable, HTMLInputE
 }
 function IframeBuilder(IframeId) {
     let IframeDiv = document.getElementById("IframeScripts");
-    let parent = Array();
     var options;
     if (IframeId.match(/.*[A-Za-z].*/i)) {
         let channel = IframeId;

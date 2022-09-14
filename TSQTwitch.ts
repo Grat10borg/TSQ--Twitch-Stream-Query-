@@ -207,6 +207,7 @@ TwitchForm.addEventListener("submit", async function (event: any) {
     StreamDataDone.append(Atag);
 
     // builds a Twitch Iframe of the Stream/Video
+    console.log(IframeId);
     IframeBuilder(IframeId);
   } else {
     // Sometimes the API makes a mistake? atleast thats what they say here

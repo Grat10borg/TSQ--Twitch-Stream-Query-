@@ -38,16 +38,11 @@
             </div>
             <input class="btn submit row mt-3" type="submit" value="submit">
         </form>
-        <div id="StreamDataDone">
-
-        </div>
-        <!-- Note: Iframes from Twitch Does not on Http it NEEDS Https  -->
+        <div id="StreamDataDone"></div>
         <!-- IF YOU SEE BLOCKED BY CLIENT IN THE CONSOLE ITS LIKELY YOUR AD BLOCKER -->
         <div class="d-flex justify-content-center m-5 mb-5">
             <div id="twitch-stream"></div>
         </div>
-
-
     </main>
     <footer class="footer mt-auto py-3 fixed-bottom justify-content-center d-flex">
         <p>⚓ Til søs og så tilbage igen. ⛵ ..glemte du noget? 🦀🐟</p>
