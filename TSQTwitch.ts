@@ -31,18 +31,17 @@
 
 // > Twitch Api Auth Vars
 let AClient_id = ""; // this is Set in ValidateToken()
-let AppAcessToken = "1745gmml661nj0604r5emf94wf4xc3" as string; // !! Each App Acess Token lasts 60 Days before needing to be remade !!
+// gets apikey from txt imported by php
+let ApiKeyP = document.getElementById("apikey") as HTMLElement;
+console.log("Your Token -> " + ApiKeyP.innerHTML);
+let AppAcessToken = ApiKeyP.innerHTML as string;
+
 
 //#region Token validation and error handling
 // Validates token and makes an alert if its not.
-if (validateToken() == 1) {
-  console.log("Token Validated Sucessfully");
-} else {
-  console.log("Error Validating Token, Did you input the correct one?");
-  console.log(
-    "The Token could also have expired: https://dev.twitch.tv/docs/authentication/register-app#registering-your-app"
-  );
-}
+validateToken();
+
+
 //#endregion
 
 //#region HTML elements Elements like <input> <ul> Note not all some are only needed in functions and is made on spot
@@ -223,30 +222,36 @@ TwitchForm.addEventListener("submit", async function (event: any) {
 // needs a VALID Twitch App Auth Token
 //#region validateToken() Validates Token if sucessful returns 1 if not 0
 // Calls the Twitch api with Out App Acess Token and returns a ClientId and tells us if the App Acess Token is Valid or Not
-function validateToken(): number {
-  fetch("https://id.twitch.tv/oauth2/validate", {
+async function validateToken() {
+  const respon = await fetch("https://id.twitch.tv/oauth2/validate", {
     headers: {
       Authorization: "Bearer " + AppAcessToken,
     },
   })
-    .then((resp) => resp.json())
-    .then((resp) => {
-      if (resp.status) {
-        if (resp.status == 401) {
-          console.log("This token is invalid ... " + resp.message);
+    .then((respon) => respon.json())
+    .then((respon) => {
+      if (respon.status) {
+        if (respon.status == 401) {
+          console.log("This token is invalid ... " + respon.message);
           return 0;
         }
         console.log("Unexpected output with a status");
         return 0;
       }
-      if (resp.client_id) {
-        AClient_id = resp.client_id;
+      if (respon.client_id) {
+        console.log("Token Validated Sucessfully");
+        AClient_id = respon.client_id;
         return 1;
       }
       console.log("unexpected Output");
       return 0;
     })
     .catch((err) => {
+      
+console.log("Error Validating Token, Did you input the correct one?");
+console.log(
+    "The Token could also have expired: https://dev.twitch.tv/docs/authentication/register-app#registering-your-app");
+  
       console.log(err);
       return 0;
     });

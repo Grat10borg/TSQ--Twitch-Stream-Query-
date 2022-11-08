@@ -19,6 +19,23 @@
         <h2 class="p-4 d-flex justify-content-center">TSQ: Twitch Stream Querier</h2>
     </header>
     <main class="pb-4 pt-4">
+        <!-- IF YOU SEE BLOCKED BY CLIENT IN THE CONSOLE ITS LIKELY YOUR AD BLOCKER -->
+        <div class="d-flex justify-content-center m-5 mb-5">
+            <div id="twitch-stream"></div>
+            <?php
+            if (file_exists("yourApiKey.txt")) {
+                $apikey = file("yourApiKey.txt");
+                if (isset($apikey[0])) {
+                    echo "<p hidden id='apikey'>{$apikey[0]}</p>";
+                }
+                else {
+                    echo "<h4>Did not find an Apikey! please put an api key in yourApiKey.txt</h4>";
+                }
+            } else {
+                echo "<h4>Did you delete yourApiKey.txt by mistake? or is it missing?</h4>";
+            }
+            ?>
+        </div>
         <form class="container col-rows-2 col-rows-1-sm col-6 " id="TwitchForm" method="POST">
             <div class="row mt-2">
                 <label id="GameLabel" class="text-center col mt-2" for="Game">Category:</label>
@@ -39,15 +56,11 @@
             <input class="btn submit row mt-3" type="submit" value="submit">
         </form>
         <div id="StreamDataDone"></div>
-        <!-- IF YOU SEE BLOCKED BY CLIENT IN THE CONSOLE ITS LIKELY YOUR AD BLOCKER -->
-        <div class="d-flex justify-content-center m-5 mb-5">
-            <div id="twitch-stream"></div>
-        </div>
     </main>
     <footer class="footer mt-auto py-3 fixed-bottom justify-content-center d-flex">
         <p>⚓ Til søs og så tilbage igen. ⛵ ..glemte du noget? 🦀🐟</p>
     </footer>
-    <script src="https://embed.twitch.tv/embed/v1.js"></script> 
+    <script src="https://embed.twitch.tv/embed/v1.js"></script>
     <script type="text/javascript" src="scripts/TSQTwitch.js"></script>
     <script type="text/javascript" src="css/bootstrap/js/bootstrap.min.js"></script>
 </body>

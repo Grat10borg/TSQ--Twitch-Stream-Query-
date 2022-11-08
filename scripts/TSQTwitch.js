@@ -9,14 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 let AClient_id = "";
-let AppAcessToken = "1745gmml661nj0604r5emf94wf4xc3";
-if (validateToken() == 1) {
-    console.log("Token Validated Sucessfully");
-}
-else {
-    console.log("Error Validating Token, Did you input the correct one?");
-    console.log("The Token could also have expired: https://dev.twitch.tv/docs/authentication/register-app#registering-your-app");
-}
+let ApiKeyP = document.getElementById("apikey");
+console.log("Your Token -> " + ApiKeyP.innerHTML);
+let AppAcessToken = ApiKeyP.innerHTML;
+validateToken();
 let TwitchForm = document.getElementById("TwitchForm");
 let StreamerNameInput = document.getElementById("StreamerName");
 let GameNameInput = document.getElementById("GameNameInput");
@@ -101,33 +97,38 @@ TwitchForm.addEventListener("submit", function (event) {
     });
 });
 function validateToken() {
-    fetch("https://id.twitch.tv/oauth2/validate", {
-        headers: {
-            Authorization: "Bearer " + AppAcessToken,
-        },
-    })
-        .then((resp) => resp.json())
-        .then((resp) => {
-        if (resp.status) {
-            if (resp.status == 401) {
-                console.log("This token is invalid ... " + resp.message);
+    return __awaiter(this, void 0, void 0, function* () {
+        const respon = yield fetch("https://id.twitch.tv/oauth2/validate", {
+            headers: {
+                Authorization: "Bearer " + AppAcessToken,
+            },
+        })
+            .then((respon) => respon.json())
+            .then((respon) => {
+            if (respon.status) {
+                if (respon.status == 401) {
+                    console.log("This token is invalid ... " + respon.message);
+                    return 0;
+                }
+                console.log("Unexpected output with a status");
                 return 0;
             }
-            console.log("Unexpected output with a status");
+            if (respon.client_id) {
+                console.log("Token Validated Sucessfully");
+                AClient_id = respon.client_id;
+                return 1;
+            }
+            console.log("unexpected Output");
             return 0;
-        }
-        if (resp.client_id) {
-            AClient_id = resp.client_id;
-            return 1;
-        }
-        console.log("unexpected Output");
-        return 0;
-    })
-        .catch((err) => {
-        console.log(err);
-        return 0;
+        })
+            .catch((err) => {
+            console.log("Error Validating Token, Did you input the correct one?");
+            console.log("The Token could also have expired: https://dev.twitch.tv/docs/authentication/register-app#registering-your-app");
+            console.log(err);
+            return 0;
+        });
+        return 1;
     });
-    return 1;
 }
 function HttpCaller(HttpCall) {
     return __awaiter(this, void 0, void 0, function* () {
