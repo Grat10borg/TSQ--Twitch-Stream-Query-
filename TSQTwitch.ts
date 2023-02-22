@@ -247,6 +247,7 @@ async function validateToken() {
       if (respon.client_id) {
         console.log("Token Validated Sucessfully");
         AClient_id = respon.client_id;
+        console.log(respon);
         return 1;
       }
       console.log("unexpected Output");
