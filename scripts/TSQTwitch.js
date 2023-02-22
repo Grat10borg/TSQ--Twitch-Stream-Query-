@@ -9,9 +9,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 let AClient_id = "";
-let ApiKeyP = document.getElementById("apikey");
-console.log("Your Token -> " + ApiKeyP.innerHTML);
-let AppAcessToken = ApiKeyP.innerHTML;
+let AppAcessToken;
+if (document.location.hash != null) {
+    console.log(document.location.hash);
+    let Res = document.location.hash.split("&");
+    let Res2 = Res[0].split("=");
+    console.log(Res2[1]);
+    AppAcessToken = Res2[1];
+}
+else {
+    let ApiKeyP = document.getElementById("apikey");
+    console.log("Your Token -> " + ApiKeyP.innerHTML);
+    AppAcessToken = ApiKeyP.innerHTML;
+}
 validateToken();
 let TwitchForm = document.getElementById("TwitchForm");
 let StreamerNameInput = document.getElementById("StreamerName");
@@ -253,9 +263,14 @@ function IframeBuilder(IframeId) {
             width: 1080,
             channel,
             allowfullscreen: true,
-            layout: 'video',
+            layout: "video",
             muted: false,
-            parent: ["osca1877.aspitcloud.dk", "aspitcloud.dk", "osca1877", "localhost"]
+            parent: [
+                "osca1877.aspitcloud.dk",
+                "aspitcloud.dk",
+                "osca1877",
+                "localhost",
+            ],
         };
     }
     else {
@@ -265,11 +280,16 @@ function IframeBuilder(IframeId) {
             width: 1080,
             video,
             allowfullscreen: true,
-            layout: 'video',
+            layout: "video",
             muted: false,
-            parent: ["osca1877.aspitcloud.dk", "aspitcloud.dk", "osca1877", "localhost"]
+            parent: [
+                "osca1877.aspitcloud.dk",
+                "aspitcloud.dk",
+                "osca1877",
+                "localhost",
+            ],
         };
     }
     console.log(options);
-    var player = new Twitch.Embed('twitch-stream', options);
+    var player = new Twitch.Embed("twitch-stream", options);
 }

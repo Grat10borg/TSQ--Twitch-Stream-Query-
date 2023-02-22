@@ -19,6 +19,7 @@
         <h2 class="p-4 d-flex justify-content-center">TSQ: Twitch Stream Querier</h2>
     </header>
     <main class="pb-4 pt-4">
+        <a href='https://id.twitch.tv/oauth2/authorize?client_id=<Your ClientID>&redirect_uri=http://localhost/Twitch-Stream-Query/&response_type=token+id_token&scope=channel%3Amanage%3Apolls+channel%3Aread%3Apolls+openid'>Connect with Twitch and use a UserAcess Token Instead?</a>
         <!-- IF YOU SEE BLOCKED BY CLIENT IN THE CONSOLE ITS LIKELY YOUR AD BLOCKER -->
         <div class="d-flex justify-content-center m-5 mb-5">
             <div id="twitch-stream"></div>

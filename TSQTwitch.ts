@@ -1,4 +1,3 @@
-
 //!! App tokens can expire !!
 //#region Twitch App Secret Explanation
 // Follow these steps to make an APP id if missing or broken https://dev.twitch.tv/docs/authentication/register-app#registering-your-app
@@ -32,15 +31,23 @@
 // > Twitch Api Auth Vars
 let AClient_id = ""; // this is Set in ValidateToken()
 // gets apikey from txt imported by php
-let ApiKeyP = document.getElementById("apikey") as HTMLElement;
-console.log("Your Token -> " + ApiKeyP.innerHTML);
-let AppAcessToken = ApiKeyP.innerHTML as string;
+let AppAcessToken: string;
+if (document.location.hash != null) {
+  console.log(document.location.hash);
+  let Res = document.location.hash.split("&");
+  let Res2= Res[0].split("=");
+  console.log(Res2[1]);
+  AppAcessToken = Res2[1];
 
+} else {
+  let ApiKeyP = document.getElementById("apikey") as HTMLElement;
+  console.log("Your Token -> " + ApiKeyP.innerHTML);
+  AppAcessToken = ApiKeyP.innerHTML as string;
+}
 
 //#region Token validation and error handling
 // Validates token and makes an alert if its not.
 validateToken();
-
 
 //#endregion
 
@@ -87,7 +94,7 @@ let IframeIds = Array(); // Holds all of either the userlogins or the Video Ids;
 let VidLink = ""; // Holds a SINGULAR selected Video / Stream Link
 let VidTitle = ""; // Holds a SINGULAR selected Video/ Stream Title
 let IframeId = ""; // Holds a SINGULAR selected Id from a selected Video/Stream
- 
+
 // Used when searching with a category
 let GameIds = Array(); // Contains id for games
 let GameTitles = Array(); // Contains titles for games
@@ -192,7 +199,6 @@ SelectedCategoryStreamSelect.addEventListener(
 TwitchForm.addEventListener("submit", async function (event: any) {
   event.preventDefault(); // stops page form reloading
   if (VidLink != "") {
-
     // places a link to the stream on the Website
     let StreamDataDone = document.getElementById(
       "StreamDataDone"
@@ -247,11 +253,11 @@ async function validateToken() {
       return 0;
     })
     .catch((err) => {
-      
-console.log("Error Validating Token, Did you input the correct one?");
-console.log(
-    "The Token could also have expired: https://dev.twitch.tv/docs/authentication/register-app#registering-your-app");
-  
+      console.log("Error Validating Token, Did you input the correct one?");
+      console.log(
+        "The Token could also have expired: https://dev.twitch.tv/docs/authentication/register-app#registering-your-app"
+      );
+
       console.log(err);
       return 0;
     });
@@ -461,38 +467,47 @@ async function ClickApi(
 function IframeBuilder(IframeId: string) {
   // setup
   let IframeDiv = document.getElementById("IframeScripts") as HTMLElement; // <div> // where the iframe gets placed
-  
+
   // if ID is a channel: login_name or a video Id: id
   var options;
   if (IframeId.match(/.*[A-Za-z].*/i)) {
     // channel: 'marinemammalrescue',
     let channel = IframeId;
-      options = {
+    options = {
       height: 520,
       width: 1080,
       channel,
       allowfullscreen: true,
-      layout: 'video',
+      layout: "video",
       muted: false,
-      parent:  ["osca1877.aspitcloud.dk","aspitcloud.dk","osca1877","localhost"]
+      parent: [
+        "osca1877.aspitcloud.dk",
+        "aspitcloud.dk",
+        "osca1877",
+        "localhost",
+      ],
     };
   } else {
     // video: '1567287413',
     let video = IframeId;
-      options = {
+    options = {
       height: 520,
       width: 1080,
       video,
       allowfullscreen: true,
-      layout: 'video',
+      layout: "video",
       muted: false,
-      parent:  ["osca1877.aspitcloud.dk","aspitcloud.dk","osca1877","localhost"]
+      parent: [
+        "osca1877.aspitcloud.dk",
+        "aspitcloud.dk",
+        "osca1877",
+        "localhost",
+      ],
     };
   }
   console.log(options);
 
   //@ts-ignore
-  var player = new Twitch.Embed('twitch-stream', options);
-  
+  var player = new Twitch.Embed("twitch-stream", options);
 }
 //#endregion
